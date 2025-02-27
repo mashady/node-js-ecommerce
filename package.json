@@ -1,0 +1,22 @@
+{
+  "name": "el-dokaan",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.2",
+    "mongoose": "^8.10.1",
+    "dotenv": "^16.3.1",
+    "config": "^3.3.9",
+    "cors": "^2.8.5",
+    "nodemon": "^2.0.15"
+
+  }
+}
