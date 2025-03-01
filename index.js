@@ -6,12 +6,14 @@ import clg from "./middlewares/clg.js";
 import notFound from "./middlewares/404.js";
 import LoginRoute from "./modules/auth/login/login.routes.js";
 import RegisterRoute from "./modules/auth/register/register.routes.js";
+import productRoutes from "./modules/product/product.Routes.js";
 
 const app = express();
 
 app.use(express.json());
 app.use(LoginRoute);
 app.use(RegisterRoute);
+app.use(productRoutes);
 
 app.use(clg);
 app.use(notFound);
