@@ -24,7 +24,7 @@ const userSchema = mongoose.Schema(
     },
     phoneNumber: {
       type: String,
-      required: true,
+      default: null,
     },
     password: {
       type: String,
@@ -40,6 +40,7 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "email",
     },
+
     googleId: {
       type: String,
     },

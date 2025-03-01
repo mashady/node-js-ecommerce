@@ -3,5 +3,10 @@
     "local_port": 8088,
     "db_uri": "mongodb+srv://abusamir:Mido123456789@cluster22.kksvxg4.mongodb.net/project_one?retryWrites=true&w=majority&appName=Cluster22"
   },
-  "jwtPrivateKey": "verySecret"
+  "jwtPrivateKey": "verySecret",
+  "SESSION_SECRET": "mashady",
+  "credential": {
+    "GOOGLE_CLIENT_ID": "231559234050-glbv02u8vmtb3ho8a4d7atcs1lhg7ef0.apps.googleusercontent.com",
+    "GOOGLE_CLIENT_SECRET": "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"
+  }
 }
