@@ -11,6 +11,7 @@ import RegisterRoute from "./modules/auth/register/register.routes.js";
 import { cartRoute } from "./modules/cart/cart.route.js";
 import gAuthRoutes from "./modules/auth/googleAuth/gAuth.routes.js";
 import productRoutes from "./modules/product/product.routes.js";
+import reviewRoutes from "./modules/reviews/review.routes.js";
 const app = express();
 
 app.use(express.json());
@@ -29,6 +30,7 @@ app.use(LoginRoute);
 app.use(RegisterRoute);
 app.use(cartRoute);
 app.use(productRoutes);
+app.use(reviewRoutes);
 
 app.use(clg);
 app.use(notFound);
