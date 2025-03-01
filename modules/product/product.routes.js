@@ -3,7 +3,7 @@ import {
   priceproduct,
   showproduct,
   searchproduct,
-} from "./product.collection.js";
+} from "./product.controller.js";
 const productRoutes = express.Router();
 
 productRoutes.get("/products", showproduct);
