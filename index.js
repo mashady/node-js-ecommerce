@@ -14,6 +14,7 @@ import productRoutes from "./modules/product/product.routes.js";
 import reviewRoutes from "./modules/reviews/review.routes.js";
 import { categoryRoutes } from "./modules/category/category.routes.js";
 import reviewRoutes from "./modules/reviews/review.routes.js";
+import { categoryRoutes } from "./modules/category/category.routes.js";
 const app = express();
 
 app.use(express.json());
@@ -35,6 +36,7 @@ app.use(productRoutes);
 app.use(reviewRoutes);
 app.use(categoryRoutes);
 app.use(reviewRoutes);
+app.use(categoryRoutes);
 
 app.use(clg);
 app.use(notFound);
