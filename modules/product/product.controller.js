@@ -1,4 +1,4 @@
-import { productmodle } from "../../../database/models/product.model.js";
+import { productmodle } from "../../database/models/product.model.js";
 
 const showproduct = async (req, res) => {
   const products = await productmodle.find();
