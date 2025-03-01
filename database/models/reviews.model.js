@@ -15,11 +15,11 @@ const reviewSchema = mongoose.Schema(
       max: 5,
     },
     userID: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
     productID: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
     },
   },
