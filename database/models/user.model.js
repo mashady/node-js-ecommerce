@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import config from "config";
 
 const userSchema = mongoose.Schema(
   {
     email: {
       type: String,
-      required: () => {
-        return this.provider !== "email" ? false : true;
+      required: function () {
+        return this.provider === "email";
       },
     },
     firstName: {
@@ -36,7 +38,6 @@ const userSchema = mongoose.Schema(
   },*/
     provider: {
       type: String,
-      required: true,
       default: "email",
     },
     googleId: {
@@ -57,10 +58,26 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    subscribed: {
+      type: Boolean,
+      default: false,
+    },
     //resetPasswordToken: {}, => TODO
     //resetPasswordExpires: {}, => TODO
   },
   { timestamps: true, versionKey: false }
 );
+
+userSchema.methods.generateAuthToken = function () {
+  const token = jwt.sign(
+    {
+      _id: this._id,
+      email: this.email,
+      role: this.role,
+    },
+    config.get("jwtPrivateKey")
+  );
+  return token;
+};
 
 export const userModel = mongoose.model("User", userSchema);
