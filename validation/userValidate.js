@@ -33,6 +33,8 @@ const userSchema = Joi.object({
   role: Joi.string().valid("user", "admin", "seller").default("user"),
 
   isVerified: Joi.boolean().default(false),
+  subscribed: Joi.boolean().default(false),
+  provider: Joi.string().default("email"),
 });
 
 export default userSchema;
