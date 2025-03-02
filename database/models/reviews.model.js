@@ -11,16 +11,18 @@ const reviewSchema = mongoose.Schema(
     rating: {
       type: Number,
       required: true,
-      mix: 0,
+      min: 0,
       max: 5,
     },
     userID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
     productID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
+      required: true,
     },
   },
   { timestamps: true, versionKey: false }
