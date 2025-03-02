@@ -5,10 +5,9 @@ const productSchema = mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       minlength: 5,
-      maxlength: 30
+      maxlength: 100
     },
     description: {
       type: String,
@@ -19,11 +18,11 @@ const productSchema = mongoose.Schema(
     price: {
       type: Number,
       required: true,
-      min: 0.01, // Enforce a minimum positive price
+      min: 0.00, 
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category', // Reference to the Category model 
+      ref: 'Category', 
       required: true
     },
     images: [{
@@ -33,10 +32,10 @@ const productSchema = mongoose.Schema(
     stock: {
       type: Number,
       required: true,
-      min: 0, // Enforce non-negative stock
+      min: 0, 
     },
     reviews: [{ 
-      type: mongoose.Schema.Types.ObjectId, // Reference the Review model 
+      type: mongoose.Schema.Types.ObjectId, 
       ref: 'Review'
     }]
   },
