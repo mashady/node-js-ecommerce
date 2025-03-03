@@ -32,7 +32,7 @@ productRoutes.get("/products/price", priceproduct);
 
 export default productRoutes;
 /**
-1- fetch songle product by id 
+1- fetch single product by id 
 2- search for product by name
 3- filter by price and category
 
