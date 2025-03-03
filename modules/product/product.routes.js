@@ -3,8 +3,10 @@ import {
   priceproduct,
   showproduct,
   searchproduct,
+  addproduct
 } from "./product.controller.js";
 const productRoutes = express.Router();
+productRoutes.post("/products", addproduct);
 
 productRoutes.get("/products", showproduct);
 productRoutes.get("/products/search", searchproduct);

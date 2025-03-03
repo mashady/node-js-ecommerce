@@ -1,7 +1,7 @@
 {
   "sys_info": {
     "local_port": 8088,
-    "db_uri": "mongodb+srv://abusamir:Mido123456789@cluster22.kksvxg4.mongodb.net/project_one?retryWrites=true&w=majority&appName=Cluster22"
+    "db_uri": "mongodb://localhost:27017/Ecommerce"
   },
   "jwtPrivateKey": "verySecret",
   "SESSION_SECRET": "mashady",

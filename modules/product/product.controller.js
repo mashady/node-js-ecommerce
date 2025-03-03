@@ -4,6 +4,10 @@ const showproduct = async (req, res) => {
   const products = await productModel.find();
   res.json({ message: "show product", products });
 };
+const addproduct = async (req, res) => {
+  const product = await productModel.create(req.body);
+  res.json({ message: "show product", product });
+};
 
 const searchproduct = async (req, res) => {
   const product = await productModel.filter(
@@ -22,4 +26,4 @@ const priceproduct = async (req, res) => {
   res.json({ message: "show product", filterproduct });
 };
 
-export { showproduct, searchproduct, priceproduct };
+export { showproduct, searchproduct, priceproduct ,addproduct};
