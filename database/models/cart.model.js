@@ -58,5 +58,5 @@ this.subtotal=this.products.reduce((sum,product)=>sum+product.totalprice,0)
 next();
 
 })
-const Cart=mongoose.model('Cart',cartSchema)
-export default Cart
+const cartModel=mongoose.model('Cart',cartSchema)
+export default cartModel
