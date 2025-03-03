@@ -4,11 +4,11 @@ import { categoryModel } from "../database/models/category.model.js";
 import { reviewModel } from "../database/models/reviews.model.js";
 
 export const productSchema = Joi.object({
-    name: Joi.string().min(5).max(20).required().messages({
+    name: Joi.string().min(5).max(100).required().messages({
         "string.base": "Name must be a string.",
         "string.empty": "Product name can't be empty.",
         "string.min": "Product name must be at least 5 characters long.",
-        "string.max": "Product name can't exceed 30 characters.",
+        "string.max": "Product name can't exceed 100 characters.",
         "any.required": "Name is required."
     }),
     description: Joi.string().min(10).required().messages({
@@ -24,25 +24,21 @@ export const productSchema = Joi.object({
         "any.required": "Price is required."
     }),
     category: Joi.string()
-        .custom(async (value, helpers) => {
-
-            if (!mongoose.Types.ObjectId.isValid(value)) return helpers.error("any.inValid");
-
-            const category = await categoryModel.findById(value);
-
-            if (!category) return helpers.error("any.notFound")
-
-            return value;
-
-        }, "Category ID validation")
         .required()
         .messages({
-            "any.invalid": "Invalid category ID format.",
-            "any.notFound": "Category not found.",
             "any.required": "Category ID is required."
         }),
     images: Joi.array()
-        .items(Joi.string().uri())
+        .items(
+            Joi.alternatives()
+                .try(
+                    Joi.string().uri(),
+                    Joi.string().pattern(/^([a-zA-Z]:)?(\\|\/)?([\w\s-]+(\\|\/)?)+\.\w+$/, "file path")
+                )
+                .messages({
+                    "alternatives.match": "Each image must be either a valid URL or a valid file path."
+                })
+        )
         .min(1)
         .max(5)
         .required()
@@ -59,19 +55,7 @@ export const productSchema = Joi.object({
         "any.required": "Stock is required."
     }),
     reviews: Joi.array()
-        .items(Joi.string()
-            .custom(async (value, helpers) => {
-
-                if (!mongoose.Types.ObjectId.isValid(value)) return helpers.error("any.inValid");
-
-                const review = await reviewModel.findById(value);
-
-                if (!review) return helpers.error("any.notFound")
-
-                return value;
-
-            }, "Review ID validation")
-        )
+        .items(Joi.string())
         .messages({
             "any.invalid": "Invalid review ID format.",
             "any.notFound": "Review not found.",

@@ -1,14 +1,24 @@
 import express from "express";
 import {
   priceproduct,
-  showproduct,
-  searchproduct,
-  addproduct
+  getAllProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  searchproduct
 } from "./product.controller.js";
-const productRoutes = express.Router();
-productRoutes.post("/products", addproduct);
 
-productRoutes.get("/products", showproduct);
+import { validateProduct, validateProductId } from "../../middlewares/validateProduct.js";
+
+const productRoutes = express.Router();
+
+// Abdelwahab => Admin CRUD operations
+productRoutes.get("/products", getAllProducts);
+productRoutes.post("/addProduct", validateProduct, addProduct);
+productRoutes.put("/updateProduct/:Id", validateProductId, validateProduct, updateProduct);
+productRoutes.delete("/deleteProduct/:Id", validateProductId, deleteProduct);
+
+
 productRoutes.get("/products/search", searchproduct);
 productRoutes.get("/products/price", priceproduct);
 
