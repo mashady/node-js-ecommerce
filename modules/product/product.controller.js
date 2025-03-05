@@ -35,21 +35,46 @@ const deleteProduct = async (req, res) => {
   res.status(200).json({message: "Product deleted succcessfully.", deletedProduct});
 }
 
-const searchproduct = async (req, res) => {
-  const product = await productModel.filter(
-    (search) => search.name === req.query.name
-  );
-  res.json({ message: "show product", product });
+// const searchproduct = async (req, res) => {
+//   const product = await productModel.filter(
+//     (search) => search.name === req.query.name
+//   );
+//   res.json({ message: "show product", product });
+// };
+
+// const priceproduct = async (req, res) => {
+//   let filterproduct = [];
+//   if (req.query.price) {
+//     filterproduct = await productModel.filter(
+//       (price) => price.price === req.query.price
+//     );
+//   }
+//   res.json({ message: "show product", filterproduct });
+// };
+
+export { getAllProducts, addProduct, updateProduct, deleteProduct};
+
+// heba
+
+const productsearch = async (req, res) => {
+  const search = await productModel.find({ name: { $regex: req.query.name, $options: 'i' } });
+  res.json({ message: "Search results", search });
 };
 
-const priceproduct = async (req, res) => {
-  let filterproduct = [];
-  if (req.query.price) {
-    filterproduct = await productModel.filter(
-      (price) => price.price === req.query.price
-    );
-  }
-  res.json({ message: "show product", filterproduct });
+const productprice = async (req, res) => {
+  let { aboveprice, belowprice } = req.query;
+  let filter = {};
+
+  if (aboveprice) filter.price = { $gte: aboveprice };
+  if (belowprice) filter.price = { ...filter.price, $lte: belowprice };
+
+  const products = await productModel.find(filter);
+  res.json({ message: "Filtered products", products });
 };
 
-export { getAllProducts, addProduct, updateProduct, deleteProduct, searchproduct, priceproduct };
+const categorysearch = async (req, res) => {
+  const search = await productModel.find({ category: { $regex: req.query.category, $options: 'i' } });
+  res.json({ message: "Search results", search });
+};
+
+export { productsearch, productprice, categorysearch };

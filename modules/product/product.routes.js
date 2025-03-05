@@ -1,11 +1,13 @@
 import express from "express";
 import {
-  priceproduct,
   getAllProducts,
   addProduct,
   updateProduct,
   deleteProduct,
-  searchproduct,
+  productsearch,
+  categorysearch,
+  productprice
+
 } from "./product.controller.js";
 
 import {
@@ -27,13 +29,17 @@ productRoutes.put(
 productRoutes.delete("/deleteProduct/:Id", validateProductId, deleteProduct);
 
 // heba start from here
-productRoutes.get("/products/search", searchproduct);
-productRoutes.get("/products/price", priceproduct);
+// productRoutes.get("/products/search", searchproduct);
+// productRoutes.get("/products/price", priceproduct);
 
 export default productRoutes;
 /**
-1- fetch single product by id 
+1- fetch single product by id
 2- search for product by name
 3- filter by price and category
 
 */
+
+productRoutes.get("/product", productsearch);
+productRoutes.get("/products/price", productprice);
+productRoutes.get("/products/category", categorysearch);
