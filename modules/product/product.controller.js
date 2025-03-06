@@ -1,5 +1,5 @@
 import { productModel } from "../../database/models/product.model.js";
-
+import mongoose from "mongoose";
 const getAllProducts = async (req, res) => {
 
   const products = await productModel.find();
@@ -72,9 +72,29 @@ const productprice = async (req, res) => {
   res.json({ message: "Filtered products", products });
 };
 
-const categorysearch = async (req, res) => {
-  const search = await productModel.find({ category: { $regex: req.query.category, $options: 'i' } });
-  res.json({ message: "Search results", search });
+
+const categorySearch = async (req, res) => {
+  try {
+    const { category } = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+      return res.status(400).json({ message: "Invalid category ID" });
+    }
+
+    console.log("Category ID received:", category);
+
+    const searchResults = await productModel.find({ category: new mongoose.Types.ObjectId(category) });
+
+    if (searchResults.length === 0) {
+      return res.status(404).json({ message: "No products found for this category" });
+    }
+
+    res.json({ message: "Search results", results: searchResults });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
 
-export { productsearch, productprice, categorysearch };
+
+export { productsearch, productprice, categorySearch };

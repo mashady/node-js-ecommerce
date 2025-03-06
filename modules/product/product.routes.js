@@ -5,7 +5,7 @@ import {
   updateProduct,
   deleteProduct,
   productsearch,
-  categorysearch,
+  categorySearch,
   productprice
 
 } from "./product.controller.js";
@@ -42,4 +42,4 @@ export default productRoutes;
 
 productRoutes.get("/product", productsearch);
 productRoutes.get("/products/price", productprice);
-productRoutes.get("/products/category", categorysearch);
+productRoutes.get("/products/category", categorySearch);
