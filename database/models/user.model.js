@@ -40,7 +40,9 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "email",
     },
-
+    address: {
+      type: String,
+    },
     googleId: {
       type: String,
     },
@@ -58,6 +60,11 @@ const userSchema = mongoose.Schema(
     isVerified: {
       type: Boolean,
       default: false,
+    },
+    AdministrativeStatus: {
+      type: String,
+      default: "pendding",
+      enum: ["pendding", "approved", "restrict"],
     },
     subscribed: {
       type: Boolean,
