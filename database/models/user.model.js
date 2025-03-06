@@ -32,7 +32,7 @@ const userSchema = mongoose.Schema(
       minlength: 6,
     },
     store: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Store",
       default: null,
     },
