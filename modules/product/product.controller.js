@@ -1,5 +1,5 @@
 import { productModel } from "../../database/models/product.model.js";
-
+import mongoose from "mongoose";
 const getAllProducts = async (req, res) => {
 
   const products = await productModel.find();
@@ -35,21 +35,66 @@ const deleteProduct = async (req, res) => {
   res.status(200).json({message: "Product deleted succcessfully.", deletedProduct});
 }
 
-const searchproduct = async (req, res) => {
-  const product = await productModel.filter(
-    (search) => search.name === req.query.name
-  );
-  res.json({ message: "show product", product });
+// const searchproduct = async (req, res) => {
+//   const product = await productModel.filter(
+//     (search) => search.name === req.query.name
+//   );
+//   res.json({ message: "show product", product });
+// };
+
+// const priceproduct = async (req, res) => {
+//   let filterproduct = [];
+//   if (req.query.price) {
+//     filterproduct = await productModel.filter(
+//       (price) => price.price === req.query.price
+//     );
+//   }
+//   res.json({ message: "show product", filterproduct });
+// };
+
+export { getAllProducts, addProduct, updateProduct, deleteProduct};
+
+// heba
+
+const productsearch = async (req, res) => {
+  const search = await productModel.find({ name: { $regex: req.query.name, $options: 'i' } });
+  res.json({ message: "Search results", search });
 };
 
-const priceproduct = async (req, res) => {
-  let filterproduct = [];
-  if (req.query.price) {
-    filterproduct = await productModel.filter(
-      (price) => price.price === req.query.price
-    );
+const productprice = async (req, res) => {
+  let { aboveprice, belowprice } = req.query;
+  let filter = {};
+
+  if (aboveprice) filter.price = { $gte: aboveprice };
+  if (belowprice) filter.price = { ...filter.price, $lte: belowprice };
+
+  const products = await productModel.find(filter);
+  res.json({ message: "Filtered products", products });
+};
+
+
+const categorySearch = async (req, res) => {
+  try {
+    const { category } = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+      return res.status(400).json({ message: "Invalid category ID" });
+    }
+
+    console.log("Category ID received:", category);
+
+    const searchResults = await productModel.find({ category: new mongoose.Types.ObjectId(category) });
+
+    if (searchResults.length === 0) {
+      return res.status(404).json({ message: "No products found for this category" });
+    }
+
+    res.json({ message: "Search results", results: searchResults });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
-  res.json({ message: "show product", filterproduct });
 };
 
-export { getAllProducts, addProduct, updateProduct, deleteProduct, searchproduct, priceproduct };
+
+export { productsearch, productprice, categorySearch };
