@@ -36,18 +36,7 @@ const cartSchema=new mongoose.Schema({
     subtotal:{
         type:Number,
         default:0,
-    },
-    status:{
-        type:String,
-        enum:["active","completed"],
-        default:'completed',
-
-    },
-    paymentMethod:{
-    type:String,
-    enum:["Epay","Cash"],
-    default:"Cash",
-    }, 
+    }
 },
 {timestamps:true})
 
@@ -58,5 +47,5 @@ this.subtotal=this.products.reduce((sum,product)=>sum+product.totalprice,0)
 next();
 
 })
-const Cart=mongoose.model('Cart',cartSchema)
-export default Cart
+const cartModel=mongoose.model('Cart',cartSchema)
+export default cartModel
