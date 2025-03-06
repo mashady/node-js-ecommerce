@@ -13,8 +13,12 @@ import gAuthRoutes from "./modules/auth/googleAuth/gAuth.routes.js";
 import productRoutes from "./modules/product/product.routes.js";
 import { categoryRoutes } from "./modules/category/category.routes.js";
 import reviewRoutes from "./modules/reviews/review.routes.js";
+import { stripeRouter } from "./stripe.js";
+import orderRouter from "./modules/order/order.route.js";
+import cors from  'cors' ;
 
 const app = express();
+app.use(cors());
 
 app.use(express.json());
 app.use(
@@ -34,7 +38,8 @@ app.use(cartRoute);
 app.use(productRoutes);
 app.use(categoryRoutes);
 app.use(reviewRoutes);
-
+app.use(orderRouter);
+app.use(stripeRouter);
 app.use(clg);
 app.use(notFound);
 

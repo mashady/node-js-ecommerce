@@ -6,35 +6,40 @@ import mongoose from "mongoose"
 export const addToCart = async (req, res) => {
     try {
 
-    const userId=req.body.id;
-    const productID=req.params.productID
-    const quantity =req.body.quantity;
-// make sure the request  type ObjectId
-    if(!mongoose.Types.ObjectId.isValid(userId)){
-    return res.status(400).json({message:" Invalid user ID"})
+        const userId= req.user._id;
+        const productID=req.params.productID
+        const quantity =req.body.quantity
+    // make sure the request  type ObjectId
+        if (!mongoose.Types.ObjectId.isValid(userId)){
+             return res.status(400).json({message:" Invalid user ID"})
 
-    }
-    if(!mongoose.Types.ObjectId.isValid(productID)){
-    return res.status(400).json({message:" Invalid product ID"})
+        }
+        if (!mongoose.Types.ObjectId.isValid(productID)){
+            return res.status(400).json({message:" Invalid product ID"})
 
-    }
-    const addedproduct =await productModel.findById(productID);
-    if(!addedproduct){
-        return res.status(404).json({message:"product not found"})
-    }
+        }
+        // validate the quantity 
+        if (!Number.isInteger(quantity) || quantity <= 0) {
+            return res.status(400).json({ message: "Quantity must be a positive integer" });
+        }
+        const addedproduct =await productModel.findById(productID);
+        if(!addedproduct){
+            return res.status(404).json({message:"product not found"})
+        }
 
-    let cart = await cartModel.findOne({userId});
-    if(!cart){
-    cart= new cartModel({userId,products:[]});
-    }
-// if product already exist increase quantity
-    const existingProductIndex = cart.products.findIndex(
-    (product) => product.productId.toString() === productID );
-     console.log(existingProductIndex);
+        let cart = await cartModel.findOne({userId});
+        if(!cart){
+        cart= new cartModel({userId,products:[]});
+        }
+        // if product already exist increase quantity
+        const existingProductIndex = cart.products.findIndex(
+        (product) => product.productId.toString() === productID );
+        // console.log(existingProductIndex);
         if (existingProductIndex > -1) {
             cart.products[existingProductIndex].quantity += quantity;
          }else{
-            let product={
+
+            const product={
             productId:addedproduct._id,
             name:addedproduct.name,
             quantity,
@@ -53,29 +58,26 @@ export const addToCart = async (req, res) => {
         }}
 
 
-
-
-//delete product from cart
+        //delete product from cart
 export const deleteFromCart = async (req, res) => {
     try {
 
-        const userId=req.body.id;
+        const userId= req.user._id;
         const productID=req.params.productID
         // make sure the request  type ObjectId
-
-        if(!mongoose.Types.ObjectId.isValid(userId)){
-        return res.status(400).json({message:" Invalid user ID"})
+        if (!mongoose.Types.ObjectId.isValid(userId)){
+            return res.status(400).json({message:" Invalid user ID"})
             
         }
-        if(!mongoose.Types.ObjectId.isValid(productID)){
-        return res.status(400).json({message:" Invalid product ID"})
+        if (!mongoose.Types.ObjectId.isValid(productID)){
+            return res.status(400).json({message:" Invalid product ID"})
             
         }
         const cart = await cartModel.findOne({userId});
         const deletedproduct = cart.products.findIndex((product)=>product.productId.toString()===productID)
         console.log(deletedproduct)
 
-        if(deletedproduct < 0){
+        if (deletedproduct < 0){
             return res.status(404).json({message:"product not found"})
         }
 
@@ -88,6 +90,25 @@ export const deleteFromCart = async (req, res) => {
     console.log("error deleting from cart",error),
     res.status(500).json({ message: "Internal Server Error", error});
     }
+}
+
+// get user cart
+export const getUserCart=async (req,res)=>{
+
+try {
+      
+    const userId =req.user._id;
+    const cart = await cartModel.findOne({ userId })
+    if (!cart) {
+        return res.status(404).json({ message: "cart not found" });
+    };
+
+    res.status(200).json(cart);
+
+} catch (error) {
+    console.log("error getUser cart",error),
+    res.status(500).json({ message: "Internal Server Error", error});}
+
 }
 
 
