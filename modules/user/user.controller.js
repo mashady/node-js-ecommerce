@@ -121,6 +121,14 @@ const updateUser = async (req, res) => {
     delete req.body.currentPassword;
     delete req.body.newPassword;
   }
+  if (req.body.eamil) {
+    const existEamil = await userModel.findOne({ email: req.body.email });
+    if (existEamil) {
+      return res.status(400).json({ message: "Email already exist" });
+    } else {
+      req.body.isVerified = false;
+    }
+  }
   const updatedUser = await userModel
     .findByIdAndUpdate(userID, { $set: req.body }, { new: true })
     .select("-password");
