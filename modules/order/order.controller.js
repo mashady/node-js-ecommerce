@@ -37,6 +37,7 @@ export const createEpayOrder = async (req, res) => {
       });
 
       // console.log(paymentIntent.status);
+      await cartModel.findByIdAndDelete(req.body.cart);
       res.status(201).json({ status: "success", clientSecret: paymentIntent.client_secret, order });
   } catch (error) {
       console.error("Error:", error);
