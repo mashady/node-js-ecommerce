@@ -4,10 +4,9 @@ import {
   addProduct,
   updateProduct,
   deleteProduct,
-  productsearch,
+  productSearch,
   categorySearch,
-  productprice
-
+  productPrice,
 } from "./product.controller.js";
 
 import {
@@ -28,11 +27,6 @@ productRoutes.put(
 );
 productRoutes.delete("/deleteProduct/:Id", validateProductId, deleteProduct);
 
-// heba start from here
-// productRoutes.get("/products/search", searchproduct);
-// productRoutes.get("/products/price", priceproduct);
-
-export default productRoutes;
 /**
 1- fetch single product by id
 2- search for product by name
@@ -40,6 +34,8 @@ export default productRoutes;
 
 */
 
-productRoutes.get("/product", productsearch);
-productRoutes.get("/products/price", productprice);
+productRoutes.get("/product", productSearch);
+productRoutes.get("/products/price", productPrice);
 productRoutes.get("/products/category", categorySearch);
+
+export default productRoutes;
