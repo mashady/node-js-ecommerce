@@ -29,7 +29,9 @@ const userSchema = Joi.object({
     .messages({
       "string.pattern.base": "Phone number must be 10-15 digits",
     }),
-
+  address: Joi.string().optional().max(255).messages({
+    "string.max": "Address should be no longer than 255 characters",
+  }),
   role: Joi.string().valid("user", "admin", "seller").default("user"),
 
   isVerified: Joi.boolean().default(false),
