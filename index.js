@@ -13,6 +13,7 @@ import gAuthRoutes from "./modules/auth/googleAuth/gAuth.routes.js";
 import productRoutes from "./modules/product/product.routes.js";
 import { categoryRoutes } from "./modules/category/category.routes.js";
 import reviewRoutes from "./modules/reviews/review.routes.js";
+import userRoutes from "./modules/user/user.routes.js";
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use(cartRoute);
 app.use(productRoutes);
 app.use(categoryRoutes);
 app.use(reviewRoutes);
+app.use(userRoutes);
 
 app.use(clg);
 app.use(notFound);
