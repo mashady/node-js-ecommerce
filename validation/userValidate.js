@@ -32,7 +32,7 @@ const userSchema = Joi.object({
   address: Joi.string().optional().max(255).messages({
     "string.max": "Address should be no longer than 255 characters",
   }),
-  role: Joi.string().valid("user", "admin", "seller").default("user"),
+  role: Joi.string().valid("user", "seller").required(), // we just update this for handle multi roles [ user / seller ]
 
   isVerified: Joi.boolean().default(false),
   subscribed: Joi.boolean().default(false),

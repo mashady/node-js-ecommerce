@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 const login = async (req, res) => {
   const { email, phoneNumber, password } = req.body;
   let user;
+  // if not verified => verify your email first
+  // if accout type is seller and have no account => create account
   if (email) {
     user = await userModel.findOne({ email: email });
   }
