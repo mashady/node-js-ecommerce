@@ -40,7 +40,6 @@ export const addToCart = async (req, res) => {
         // console.log(existingProductIndex);
         if (existingProductIndex > -1) {
             cart.products[existingProductIndex].quantity += quantity;
-            cart.products[existingProductIndex].quantity += quantity;
             cart.products[existingProductIndex].totalprice = 
             cart.products[existingProductIndex].quantity * addedproduct.price;
          }else{
@@ -52,7 +51,7 @@ export const addToCart = async (req, res) => {
             price:addedproduct.price,
             image:addedproduct.image,
             description:addedproduct.description,
-            totalprice: quantity * addedProduct.price,
+            totalprice: quantity * addedproduct.price,
             }
             cart.products.push(product);
             }

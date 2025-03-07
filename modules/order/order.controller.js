@@ -9,8 +9,7 @@ const stripe = new Stripe(config.get('STRIPE_KEY'));
 export const createEpayOrder = async (req, res) => {
 
   try {
-      // console.log("Request:", req.body);
-      // console.log("User:", req.user); 
+   
       const cart = await cartModel.findById(req.body.cart);
       if (!cart) {
           return res.status(404).json({ message: "Cart not found!" });
@@ -18,58 +17,62 @@ export const createEpayOrder = async (req, res) => {
 
       const totalOrderPrice = cart.subtotal * 100;
 
-      const paymentIntent = await stripe.paymentIntents.create({
-          amount: totalOrderPrice,
-          currency: "usd",
-          payment_method_types: ["card"],
-          metadata: { userId: req.user._id, cartId: cart._id.toString() },
-      });
-
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: [
+            {
+                price_data: {
+                    currency: "usd",
+                    product_data: { name: "Your Order" },
+                    unit_amount: totalOrderPrice,
+                },
+                quantity: 1,
+            },
+        ],
+        mode: "payment",
+        success_url: `http://127.0.0.1:8088/checkout/epay/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `http://127.0.0.1:8088/checkout/epay/payment-failed`,
+        metadata: { userId: req.user._id, cartId: cart._id.toString() },
+    });
       const order = await orderModel.create({
           user: req.user._id,
           cart: req.body.cart,
           shippingAddress: req.body.shippingAddress,
           totalOrderPrice: cart.subtotal,
-          paymentIntentId: paymentIntent.id,
           status: "pending",
-          paymentMethod:'Epay'
+          paymentMethod:'Epay',
+          checkoutSessionId: session.id
 
       });
 
-      // console.log(paymentIntent.status);
       await cartModel.findByIdAndDelete(req.body.cart);
-      res.status(201).json({ status: "success", clientSecret: paymentIntent.client_secret, order });
-  } catch (error) {
+      res.status(201).json({ status: "success", url: session.url, order });  } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ message: error.message });
   }
 };
 
 
-export const updateOrderStatus=async(req,res)=>{
+export const updateOrderStatus = async (req, res) => {
     try {
-      const orderId= req.params.orderId;
-      const status= req.body.status;
+        const { session_id } = req.query;
+        const session = await stripe.checkout.sessions.retrieve(session_id);
 
-      const validStatuses = ["pending", "paid", "canceled", "shipped", "delivered"];
-      if (!validStatuses.includes(status)) {
-          return res.status(400).json({ message: "Invalid status value" });
-      }
-      const order = await orderModel.findByIdAndUpdate(
-          orderId,
-          { status },
-          { new: true }
-      );
+        if (!session) {
+            return res.status(400).json({ message: "Invalid session" });
+        }
+        await orderModel.findOneAndUpdate(
+            { checkoutSessionId: session.id },
+            { status: "paid" }
+        );
 
-      if (!order) {
-          return res.status(404).json({ message: "Order not found" });
-      }
-
-      res.json({ message: "Order updated successfully", order });
-  } catch (error) {
-      res.status(500).json({ message: "Server error", error: error.message });
-  }
+        res.json({ message: "Payment successful!"});
+    } catch (error) {
+        console.error("Payment success error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
 };
+
 
 
 export const createCashOrder =async(req,res)=>{
