@@ -1,5 +1,5 @@
 import { userModel } from "../../database/models/user.model.js";
-
+import { orderModel } from "../../database/models/order.model.js";
 const getUsers = async (req, res) => {
   const { page = 1, limit = 2 } = req.query; //donot forget to change the limit <==
   const skip = (page - 1) * limit;
@@ -85,14 +85,16 @@ const searchUsers = async (req, res) => {
       .json({ message: "Error fetching users", error: error.message });
   }
 };
-
+// same way we will handle the user reviews
 const userPfoile = async (req, res) => {
   const userID = req.user?._id;
   console.log(userID);
-  const user = await userModel.findById(userID, { password: 0 });
+  const user = await userModel.findById(userID, { password: 0 }).lean();
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
+  const userOrders = await orderModel.find({ user: userID });
+  user.orders = userOrders;
   res.status(200).json({
     message: "user profile fetched successfully",
     user,
