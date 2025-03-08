@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 const storeSchema = new mongoose.Schema(
   {
     user: {
