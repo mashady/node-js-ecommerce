@@ -39,6 +39,7 @@ app.use(LoginRoute);
 app.use(RegisterRoute);
 app.use(cartRoute);
 app.use(productRoutes);
+app.use("/uploads", express.static("uploads"));
 app.use(categoryRoutes);
 app.use(reviewRoutes);
 app.use(userRoutes);
