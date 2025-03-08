@@ -1,5 +1,7 @@
 import { categorySchema } from "../validation/categoryValidate.js";
 import { categoryModel } from "../database/models/category.model.js";
+
+
 export const validateCategory = (req, res, next) => {
     const validation = categorySchema.validate(req.body, { abortEarly: false });
     if (validation.error) {
