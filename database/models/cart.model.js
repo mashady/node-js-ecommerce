@@ -25,14 +25,11 @@ const cartSchema=new mongoose.Schema({
         default:1,
         min:1,
     },
-    totalprice:{
-        type:Number,
-        default: function(){
-            return this.quantity * this.price
-        }
-    }
-
-    }],
+    totalprice: {
+        type: Number,
+        default: 0, 
+    },
+    },],
     subtotal:{
         type:Number,
         default:0,
@@ -40,12 +37,5 @@ const cartSchema=new mongoose.Schema({
 },
 {timestamps:true})
 
-// middleware function calculate subtotal   
-cartSchema.pre("save",function(next){
-
-this.subtotal=this.products.reduce((sum,product)=>sum+product.totalprice,0)
-next();
-
-})
 const cartModel=mongoose.model('Cart',cartSchema)
 export default cartModel

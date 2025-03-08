@@ -33,7 +33,7 @@ const orderSchema = new mongoose.Schema(
       enum: ["Epay", "Cash"],
       default: "Cash",
     },
-    paymentIntentId: {
+    checkoutSessionId: {
       type: String,
       default: null,
     },
