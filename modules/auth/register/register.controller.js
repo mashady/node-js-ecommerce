@@ -29,8 +29,9 @@ const register = async (req, res) => {
     subscribed,
   });
   await newUser.save();
-  const token = newUser.generateAuthToken();
+  //const token = newUser.generateAuthToken();
   res.status(201).json({
+    message: "Account created successfully, go ahead and verify your account.",
     user: {
       email,
       firstName,
@@ -38,7 +39,7 @@ const register = async (req, res) => {
       role: newUser.role,
       isVerified: newUser.isVerified,
     },
-    token,
+    // token,
   });
 };
 export default register;

@@ -54,7 +54,7 @@ export function emailTemplate(token) {
           <div class="email-container">
             <h1>Welcome to Our Service!</h1>
             <p>Thank you for signing up. To complete your registration, please verify your email address.</p>
-            <a href="http://localhost:8088/auth/verify/${token}" class="button">Verify Email</a>
+            <a href="http://localhost:8088/verify/${token}" class="button">Verify Email</a>
             <p class="footer">If you did not sign up, please ignore this email.</p>
           </div>
         </body>
