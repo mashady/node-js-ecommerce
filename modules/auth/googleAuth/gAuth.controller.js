@@ -2,6 +2,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import config from "config";
 import { userModel } from "../../../database/models/user.model.js";
+
 passport.use(
   new GoogleStrategy(
     {
@@ -12,40 +13,40 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const { id, emails, displayName } = profile;
-        const email = emails && emails[0] ? emails[0].value : null;
+        const email = emails?.[0]?.value || null;
         const googleId = id;
+
         let userGID = await userModel.findOne({ googleId });
-        let userEmail = await userModel.findOne({ email: emails[0].value });
+        let userEmail = await userModel.findOne({ email });
+
         if (userEmail && userEmail.provider === "email") {
           return done(null, false, {
             message:
-              "User already exists with this email. Cannot log in with Google.",
+              "This email is already registered. Please use your email & password to log in.",
           });
         }
+
         if (!userGID && !userEmail) {
           let newUser = new userModel({
             googleId,
             email,
-            firstName: displayName.split(" ")[0],
-            lastName: displayName.split(" ")[1],
+            firstName: displayName.split(" ")[0] || "",
+            lastName: displayName.split(" ")[1] || "",
             isVerified: true,
             provider: "google",
           });
           await newUser.save();
-          const token = newUser.generateAuthToken();
+          return done(null, newUser, newUser.generateAuthToken());
+        }
 
-          console.log("New user created:", newUser);
-          return done(null, newUser, token);
+        if (userGID && userGID.AdministrativeStatus === "restrict") {
+          return done(null, false, {
+            message:
+              "Your account has been restricted. Please contact support for further assistance.",
+          });
         }
-        if (userGID && userGID.provider === "google") {
-          return done(null, userGID, userGID.generateAuthToken());
-        }
-        console.log(token);
-        console.log("User already exists. You cannot log wiht google account");
-        console.log(profile);
-        return done(null, false, {
-          message: "User already exists. You cannot log wiht google account",
-        });
+
+        return done(null, userGID, userGID.generateAuthToken());
       } catch (error) {
         return done(error, null);
       }
@@ -69,16 +70,21 @@ const googleCallback = (req, res, next) => {
         return next(err);
       }
       if (!user) {
-        return res.send(
-          "User already exists. You cannot log wiht google account"
-        );
+        return res.status(403).json({
+          success: false,
+          message: info?.message || "Authentication failed, please contact us.",
+        });
       }
 
       req.logIn(user, token, (err) => {
         if (err) {
           return next(err);
         }
-        res.json({ message: "User logged in successfully", token: token });
+        res.json({
+          success: true,
+          message: "User logged in successfully",
+          token: token,
+        });
       });
     }
   )(req, res, next);

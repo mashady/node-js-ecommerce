@@ -31,11 +31,11 @@ const userSchema = mongoose.Schema(
       reuied: true,
       minlength: 6,
     },
-    /*seller:{
-      type: Schema.Types.ObjectId,
-      ref: 'Seller',
-      default: null
-  },*/
+    store: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      default: null,
+    },
     provider: {
       type: String,
       default: "email",
@@ -70,12 +70,14 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    /*
+    not good aproch
     reviews: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Review",
       },
-    ],
+    ],*/
     //resetPasswordToken: {}, => TODO
     //resetPasswordExpires: {}, => TODO
   },
@@ -95,3 +97,6 @@ userSchema.methods.generateAuthToken = function () {
 };
 
 export const userModel = mongoose.model("User", userSchema);
+// ask user in register about role [user, seller] only
+// validte user role to be only user or seller
+// if account type (role) is a seller no need to ask about address

@@ -5,17 +5,12 @@ import jwt from "jsonwebtoken";
 import { validateUser } from "../../../middlewares/validateUser.js";
 import { sendEmail } from "../../../services/email.js";
 const register = async (req, res) => {
+  // user must to send role [ user / seller ] => user for user accounts and sellers for seller one
   const { email, firstName, lastName, phoneNumber, password, subscribed } =
     req.body;
 
   const existingUser = await userModel.findOne({ email });
   const existingPhoneNumber = await userModel.findOne({ phoneNumber });
-
-  /*if (existingUser || existingPhoneNumber) {
-    return res.status(400).json({
-      errors: ["Email or phone number already exists"],
-    });
-  }*/
 
   if (existingUser) {
     return res.status(400).json({ errors: ["Email already exists"] });
@@ -34,8 +29,9 @@ const register = async (req, res) => {
     subscribed,
   });
   await newUser.save();
-  const token = newUser.generateAuthToken();
+  //const token = newUser.generateAuthToken();
   res.status(201).json({
+    message: "Account created successfully, go ahead and verify your account.",
     user: {
       email,
       firstName,
@@ -43,7 +39,7 @@ const register = async (req, res) => {
       role: newUser.role,
       isVerified: newUser.isVerified,
     },
-    token,
+    // token,
   });
 };
 export default register;
