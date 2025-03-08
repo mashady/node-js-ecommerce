@@ -70,12 +70,14 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    /*
+    not good aproch
     reviews: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Review",
       },
-    ],
+    ],*/
     //resetPasswordToken: {}, => TODO
     //resetPasswordExpires: {}, => TODO
   },
