@@ -20,6 +20,11 @@ const productSchema = mongoose.Schema(
       required: true,
       min: 0.00, 
     },
+    discount: {
+      type: Number,
+      min: 0.00, 
+      max: 1.00
+    },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category', 
