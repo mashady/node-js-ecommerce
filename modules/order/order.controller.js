@@ -3,20 +3,31 @@ import { orderModel } from "../../database/models/order.model.js";
 import mongoose from "mongoose";
 import Stripe from "stripe";
 import config from "config";
+import { productModel } from "../../database/models/product.model.js";
 
-const stripe = new Stripe(config.get('STRIPE_KEY'));
+const stripe = new Stripe(config.get("STRIPE_KEY"));
 
 export const createEpayOrder = async (req, res) => {
-
   try {
-   
+
       const cart = await cartModel.findById(req.body.cart);
       if (!cart) {
           return res.status(404).json({ message: "Cart not found!" });
+      } 
+      if(cart.products.length===0){
+        return res.status(404).json({ message: "There is no products in the cart!" });
       }
+      for (const item of cart.products) {
+        const product=await productModel.findById(item.productId)
+        if(!product) continue;
 
+        if(product.stock <item.quantity){
+          return res.status(400).json({message:` Not enough stock for ${product.name}. Avaliable: ${product.stock}, Requested`})
+ 
+         }
+        await productModel.findByIdAndUpdate(item.productId, { $inc: { stock: -item.quantity } });
+    }
       const totalOrderPrice = cart.subtotal * 100;
-
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: [
@@ -74,31 +85,46 @@ export const updateOrderStatus = async (req, res) => {
 };
 
 
+export const createCashOrder = async (req, res) => {
+    try{
+        const userId = req.user._id;
+     if (!mongoose.Types.ObjectId.isValid(req.body.cart)) {
+        return res.status(400).json({ message: "Invalid cart ID format!" });
+      }
 
-export const createCashOrder =async(req,res)=>{
-    const userId = req.user._id;
-    if (!mongoose.Types.ObjectId.isValid(req.body.cart)) {
-
-      return res.status(400).json({ message: "Invalid cart ID format!" });}
-
-
-      const cart = await cartModel.findById(req.body.cart);
+  const cart = await cartModel.findById(req.body.cart);
 
     if (!cart) {
-      return res.status(404).json({message:"cart not found!"})
+        return res.status(404).json({ message: "cart not found!" });
     }
+    
+    if (cart.products.length===0){
+        return res.status(404).json({ message: "There is no products in the cart!" });
+    }
+    for (const item of cart.products) {
+
+        const product=await productModel.findById(item.productId)
+        if(!product) continue;
+        
+        if(product.stock <item.quantity){
+        return res.status(400).json({message:` Not enough stock for ${product.name}. Avaliable: ${product.stock}, Requested`})
+        }
+     }
     const totalOrderPrice = cart.subtotal;
-  
+
     const order = await orderModel.create({
         user: userId,
         cart:req.body.cart,
         shippingAddress: req.body.shippingAddress,
         totalOrderPrice,
-      });
-  
-   await cartModel.findByIdAndDelete(req.params.cartId);
-    res.status(201).json({ status: 'success', data: order });
+    });
+
+    await cartModel.findByIdAndDelete(req.body.cart);
+    res.status(201).json({ status: 'success', data: order })}
+    catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
     }
+}
     
 export const cancelAnOrder=async(req,res)=>{
       try {

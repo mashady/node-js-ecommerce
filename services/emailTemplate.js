@@ -1,5 +1,5 @@
-export function emailTemplate(email) {
-  return `
+export function emailTemplate(token) {
+  return ` 
       <!DOCTYPE html>
       <html lang="en">
         <head>
@@ -33,8 +33,8 @@ export function emailTemplate(email) {
             .button {
               display: block;
               width: 200px;
-              background-color: #F8485E;
-              color: #ffffff;
+              background-color: blue;
+              color: #ffffff!important;
               text-align: center;
               padding: 10px;
               text-decoration: none;
@@ -54,7 +54,7 @@ export function emailTemplate(email) {
           <div class="email-container">
             <h1>Welcome to Our Service!</h1>
             <p>Thank you for signing up. To complete your registration, please verify your email address.</p>
-            <a href="http://localhost:8088/verify/${email}" class="button">Verify Email</a>
+            <a href="http://localhost:8088/auth/verify/${token}" class="button">Verify Email</a>
             <p class="footer">If you did not sign up, please ignore this email.</p>
           </div>
         </body>

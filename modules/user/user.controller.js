@@ -1,5 +1,6 @@
 import { userModel } from "../../database/models/user.model.js";
-
+import { orderModel } from "../../database/models/order.model.js";
+import mongoose from "mongoose";
 const getUsers = async (req, res) => {
   const { page = 1, limit = 2 } = req.query; //donot forget to change the limit <==
   const skip = (page - 1) * limit;
@@ -85,18 +86,62 @@ const searchUsers = async (req, res) => {
       .json({ message: "Error fetching users", error: error.message });
   }
 };
-
+// same way we will handle the user reviews
 const userPfoile = async (req, res) => {
-  const userID = req.user?._id;
-  console.log(userID);
-  const user = await userModel.findById(userID, { password: 0 });
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+  try {
+    if (!req.user || !req.user._id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No user ID provided" });
+    }
+
+    const userID = new mongoose.Types.ObjectId(req.user._id);
+
+    console.log("Fetching user profile for ID:", userID);
+
+    const userProfileData = await userModel.aggregate([
+      { $match: { _id: userID } },
+
+      {
+        $lookup: {
+          from: "orders",
+          localField: "_id",
+          foreignField: "user",
+          as: "orders",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "userID",
+          as: "reviews",
+        },
+      },
+
+      {
+        $project: {
+          password: 0,
+          __v: 0,
+        },
+      },
+    ]);
+
+    if (!userProfileData || userProfileData.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User profile fetched successfully",
+      user: userProfileData[0],
+    });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
   }
-  res.status(200).json({
-    message: "user profile fetched successfully",
-    user,
-  });
 };
 const updateUser = async (req, res) => {
   const userID = req.user?._id;
