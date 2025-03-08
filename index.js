@@ -19,6 +19,7 @@ import { promocodeRoutes } from "./modules/promocode/promocode.routes.js";
 import { bannerRoutes } from "./modules/banner/banner.routes.js";
 import cors from "cors";
 import wishlistRoutes from "./modules/wishlist/wishlist.routes.js";
+import storeRoutes from "./modules/store/store.routes.js";
 
 const app = express();
 app.use(cors());
@@ -47,6 +48,7 @@ app.use(promocodeRoutes);
 app.use(bannerRoutes);
 app.use(wishlistRoutes);
 app.use(orderRouter);
+app.use(storeRoutes);
 app.use(clg);
 app.use(notFound);
 
