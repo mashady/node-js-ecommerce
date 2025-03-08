@@ -1,5 +1,7 @@
 import { productModel } from "../../database/models/product.model.js";
 import mongoose from "mongoose";
+
+
 const getAllProducts = async (req, res) => {
   const products = await productModel.find();
 
@@ -12,24 +14,53 @@ const getAllProducts = async (req, res) => {
 };
 
 const addProduct = async (req, res) => {
-  const addedProduct = await productModel.insertOne(req.body);
+  try {
 
-  res
-    .status(201)
-    .json({ message: "Product added successfully!", addedProduct });
+    const { name, description, price, category, stock, discount, reviews } = req.body;
+    const files = req.files;
+
+    const imagePaths = files?.map(file => `/uploads/${file.filename}`) || [];
+
+    const addedProduct = await productModel.create({
+      name,
+      price,
+      images: imagePaths,
+      description,
+      category,
+      stock,
+      discount,
+      reviews
+    });
+
+    res.status(201).json({ message: "Product added successfully!", addedProduct });
+
+
+  } catch {
+    res.status(500).json({ error: error.message });
+  }
+
 };
 
 const updateProduct = async (req, res) => {
-  const reqProduct = req.params.Id;
+  try {
+    const reqProduct = req.params.Id;
+    const existingProduct = await productModel.findById(reqProduct);
 
-  const foundedProduct = await productModel.findByIdAndUpdate(
-    reqProduct,
-    req.body
-  );
+    let imagePaths = existingProduct.images || [];
+    if (req.files && req.files.length > 0) {
+      imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+    }
 
-  res
-    .status(200)
-    .json({ message: "Product updated succcessfully.", foundedProduct });
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      reqProduct,
+      { ...req.body, images: imagePaths },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Product updated successfully.", updatedProduct });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const deleteProduct = async (req, res) => {
