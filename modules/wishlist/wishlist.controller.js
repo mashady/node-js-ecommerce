@@ -1,5 +1,5 @@
-import wishlistModel from "../../database/models/wishlist.model.js";
-import productModel from "../../database/models/product.model.js";
+import { wishlistModel } from "../../database/models/wishlist.model.js";
+import { productModel } from "../../database/models/product.model.js";
 const getWishlist = async (req, res) => {
   const userId = req.user._id;
 

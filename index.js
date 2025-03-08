@@ -15,9 +15,10 @@ import { categoryRoutes } from "./modules/category/category.routes.js";
 import reviewRoutes from "./modules/reviews/review.routes.js";
 import userRoutes from "./modules/user/user.routes.js";
 import orderRouter from "./modules/order/order.route.js";
-import {promocodeRoutes} from "./modules/promocode/promocode.routes.js"
+import { promocodeRoutes } from "./modules/promocode/promocode.routes.js";
 import { bannerRoutes } from "./modules/banner/banner.routes.js";
 import cors from "cors";
+import wishlistRoutes from "./modules/wishlist/wishlist.routes.js";
 
 const app = express();
 app.use(cors());
@@ -41,9 +42,9 @@ app.use(productRoutes);
 app.use(categoryRoutes);
 app.use(reviewRoutes);
 app.use(userRoutes);
-app.use(promocodeRoutes)
+app.use(promocodeRoutes);
 app.use(bannerRoutes);
-
+app.use(wishlistRoutes);
 app.use(orderRouter);
 app.use(clg);
 app.use(notFound);
