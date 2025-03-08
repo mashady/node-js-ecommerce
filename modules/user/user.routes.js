@@ -1,5 +1,6 @@
 import express from "express";
 import auth from "../../middlewares/auth.js";
+import { validateProfileUpdate } from "../../middlewares/validateProfileUpdate.js";
 const userRoutes = express.Router();
 import {
   getUsers,
@@ -11,7 +12,7 @@ import {
 userRoutes.get("/user", getUsers); //fetch all users
 userRoutes.get("/user/search", searchUsers); // search users
 userRoutes.get("/user/profile", auth, userPfoile); // logged user profile
-userRoutes.put("/user", auth, updateUser); // profile update
+userRoutes.put("/user", auth, validateProfileUpdate, updateUser); // profile update
 
 export default userRoutes;
 
