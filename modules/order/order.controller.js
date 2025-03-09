@@ -9,7 +9,9 @@ const stripe = new Stripe(config.get("STRIPE_KEY"));
 
 export const createEpayOrder = async (req, res) => {
   try {
-    const cart = await cartModel.findById(req.body.cart);
+    const userId = req.user._id;
+    const cart = await cartModel.findOne({ _id: req.body.cart, userId });
+
     if (!cart) {
       return res.status(404).json({ message: "Cart not found!" });
     }
@@ -94,7 +96,7 @@ export const createCashOrder = async (req, res) => {
       return res.status(400).json({ message: "Invalid cart ID format!" });
     }
 
-    const cart = await cartModel.findById(req.body.cart);
+    const cart = await cartModel.findOne({ _id: req.body.cart, userId });
 
     if (!cart) {
       return res.status(404).json({ message: "cart not found!" });
@@ -142,6 +144,12 @@ export const cancelAnOrder = async (req, res) => {
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
+    }
+    if (order.status === "canceled") {
+      return res.status(400).json({ message: "Order is already canceled" });
+    }
+    if (order.status === "shipped" || order.status === "delivered") {
+      return res.status(400).json({ message: "Cannot cancel a shipped or delivered order" });
     }
 
     res.json({ message: "Order canceled successfully", order });
