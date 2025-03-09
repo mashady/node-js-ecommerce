@@ -52,7 +52,7 @@ export const addToCart = async (req, res) => {
                 image: addedProduct.image,
                 description: addedProduct.description,
                 totalPriceBeforeDiscount: quantity * addedProduct.price,
-                totalprice: quantity * addedProduct.price * discountMultiplier, // Only apply product discount
+                totalprice: quantity * addedProduct.price * discountMultiplier, 
             });
         }
 
