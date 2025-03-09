@@ -2,6 +2,7 @@ import { userModel } from "../../database/models/user.model.js";
 import { orderModel } from "../../database/models/order.model.js";
 import mongoose from "mongoose";
 import { sendEmail } from "../../services/email.js";
+
 const getUsers = async (req, res) => {
   const { page = 1, limit = 20 } = req.query; //donot forget to change the limit <==
   const skip = (page - 1) * limit;
@@ -151,9 +152,7 @@ const userPfoile = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const userID = req.user?._id;
-    if (!userID) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+
     if (Object.keys(req.body).length === 0) {
       return res.status(400).json({
         message: "No update data provided",
@@ -237,6 +236,10 @@ const updateUser = async (req, res) => {
 const updateAdministrativeStatus = async (req, res) => {
   try {
     const { userId, status } = req.body;
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid or missing User ID" });
+    }
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });

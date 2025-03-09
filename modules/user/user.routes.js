@@ -16,7 +16,6 @@ userRoutes.get("/user/search", auth, role.check("admin"), searchUsers); // searc
 userRoutes.get("/user/profile", auth, userPfoile); // logged user profile
 userRoutes.put("/user/profile", auth, validateProfileUpdate, updateUser); // profile update
 userRoutes.put("/user", auth, role.check("admin"), updateAdministrativeStatus); // profile update
-// add update one user by admin
 
 export default userRoutes;
 
