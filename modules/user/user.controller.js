@@ -1,8 +1,9 @@
 import { userModel } from "../../database/models/user.model.js";
 import { orderModel } from "../../database/models/order.model.js";
 import mongoose from "mongoose";
+import { sendEmail } from "../../services/email.js";
 const getUsers = async (req, res) => {
-  const { page = 1, limit = 2 } = req.query; //donot forget to change the limit <==
+  const { page = 1, limit = 20 } = req.query; //donot forget to change the limit <==
   const skip = (page - 1) * limit;
   const user = await userModel
     .find(
@@ -14,8 +15,6 @@ const getUsers = async (req, res) => {
         provider: 0,
         isVerified: 0,
         googleId: 0,
-        facebookId: 0,
-        subscribed: 0,
       }
     )
     .sort("-created")
@@ -35,7 +34,7 @@ const getUsers = async (req, res) => {
   });
 };
 const searchUsers = async (req, res) => {
-  const { user = "", page = 1, limit = 2 } = req.query;
+  const { user = "", page = 1, limit = 20 } = req.query;
 
   const regex = new RegExp(user, "i");
 
@@ -62,8 +61,6 @@ const searchUsers = async (req, res) => {
         provider: 0,
         isVerified: 0,
         googleId: 0,
-        facebookId: 0,
-        subscribed: 0,
       })
       .sort("-created")
       .limit(limitNumber)
@@ -72,7 +69,15 @@ const searchUsers = async (req, res) => {
 
     const totalUsers = await userModel.countDocuments(filter);
     const totalPages = Math.ceil(totalUsers / limitNumber);
-
+    if (users.length === 0) {
+      return res.status(404).json({
+        message: "No users found matching.",
+        totalUsers,
+        totalPages,
+        page: pageNumber,
+        data: [],
+      });
+    }
     res.json({
       message: "Users fetched successfully",
       totalUsers,
@@ -144,46 +149,136 @@ const userPfoile = async (req, res) => {
   }
 };
 const updateUser = async (req, res) => {
-  const userID = req.user?._id;
+  try {
+    const userID = req.user?._id;
+    if (!userID) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
-  if (req.body.currentPassword && req.body.newPassword) {
     const user = await userModel.findById(userID);
-    if (!user)
-      return res.status(404).json({
-        message: "user not found",
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const updates = { ...req.body };
+
+    if (updates.currentPassword && updates.newPassword) {
+      const isMatch = await bcrypt.compare(
+        updates.currentPassword,
+        user.password
+      );
+
+      if (!isMatch) {
+        return res.status(400).json({ message: "Incorrect current password" });
+      }
+
+      updates.password = await bcrypt.hash(updates.newPassword, 10);
+
+      delete updates.currentPassword;
+      delete updates.newPassword;
+    }
+
+    if (updates.email && updates.email !== user.email) {
+      const existingEmail = await userModel.findOne({
+        email: updates.email,
+        _id: { $ne: userID },
       });
 
-    const isMatch = await bcrypt.compare(
-      req.body.currentPassword,
-      user.password
-    );
-    if (!isMatch) {
-      return res.status(400).json({ message: "Incorrect current password" });
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+
+      try {
+        await sendEmail(updates.email);
+        updates.isVerified = false;
+      } catch (error) {
+        return res.status(500).json({
+          message: "Failed to send verification email",
+          error: error.message,
+        });
+      }
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
-    req.body.password = hashedPassword;
-    delete req.body.currentPassword;
-    delete req.body.newPassword;
-  }
-  if (req.body.eamil) {
-    const existEamil = await userModel.findOne({ email: req.body.email });
-    if (existEamil) {
-      return res.status(400).json({ message: "Email already exist" });
-    } else {
-      req.body.isVerified = false;
+    if (updates.phoneNumber && updates.phoneNumber !== user.phoneNumber) {
+      const existingPhone = await userModel.findOne({
+        phoneNumber: updates.phoneNumber,
+        _id: { $ne: userID },
+      });
+
+      if (existingPhone) {
+        return res.status(400).json({ message: "Phone number already exists" });
+      }
     }
+
+    const updatedUser = await userModel
+      .findByIdAndUpdate(userID, { $set: updates }, { new: true })
+      .select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Failed to update user" });
+    }
+
+    return res.status(200).json({
+      message: "User updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "An error occurred while updating user",
+      error: error.message,
+    });
   }
-  const updatedUser = await userModel
-    .findByIdAndUpdate(userID, { $set: req.body }, { new: true })
-    .select("-password");
-  if (!updatedUser) {
-    return res.status(404).json({ message: "User not found" });
-  }
-  res.status(200).json({
-    message: "user updated successfully",
-    updatedUser,
-  });
 };
 
-export { getUsers, searchUsers, userPfoile, updateUser };
+const updateAdministrativeStatus = async (req, res) => {
+  try {
+    const { userId, status } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    const validStatuses = ["approved", "restrict"];
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status. Must be either 'approved' or 'restrict'",
+      });
+    }
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const updatedUser = await userModel
+      .findByIdAndUpdate(
+        userId,
+        { AdministrativeStatus: status },
+        { new: true }
+      )
+      .select("-password");
+
+    // todo: Add actions based on status change
+    if (status === "approved") {
+    } else if (status === "restrict") {
+    }
+
+    return res.status(200).json({
+      message: `User administrative status updated to '${status}' successfully`,
+      user: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "An error occurred while updating administrative status",
+      error: error.message,
+    });
+  }
+};
+
+export {
+  getUsers,
+  searchUsers,
+  userPfoile,
+  updateUser,
+  updateAdministrativeStatus,
+};

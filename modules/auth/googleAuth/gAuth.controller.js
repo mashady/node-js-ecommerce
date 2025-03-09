@@ -2,7 +2,6 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import config from "config";
 import { userModel } from "../../../database/models/user.model.js";
-
 passport.use(
   new GoogleStrategy(
     {
@@ -13,40 +12,45 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const { id, emails, displayName } = profile;
-        const email = emails?.[0]?.value || null;
+        const email = emails && emails[0] ? emails[0].value : null;
         const googleId = id;
-
         let userGID = await userModel.findOne({ googleId });
-        let userEmail = await userModel.findOne({ email });
-
+        let userEmail = await userModel.findOne({ email: emails[0].value });
         if (userEmail && userEmail.provider === "email") {
           return done(null, false, {
             message:
-              "This email is already registered. Please use your email & password to log in.",
+              "User already exists with this email. Cannot log in with Google.",
           });
         }
-
         if (!userGID && !userEmail) {
           let newUser = new userModel({
             googleId,
             email,
-            firstName: displayName.split(" ")[0] || "",
-            lastName: displayName.split(" ")[1] || "",
+            firstName: displayName.split(" ")[0],
+            lastName: displayName.split(" ")[1],
             isVerified: true,
             provider: "google",
           });
           await newUser.save();
-          return done(null, newUser, newUser.generateAuthToken());
-        }
+          const token = newUser.generateAuthToken();
 
+          console.log("New user created:", newUser);
+          return done(null, newUser, token);
+        }
         if (userGID && userGID.AdministrativeStatus === "restrict") {
           return done(null, false, {
-            message:
-              "Your account has been restricted. Please contact support for further assistance.",
+            message: "Your account has been restricted. Please contact us.",
           });
         }
-
-        return done(null, userGID, userGID.generateAuthToken());
+        if (userGID && userGID.provider === "google") {
+          return done(null, userGID, userGID.generateAuthToken());
+        }
+        console.log(token);
+        console.log("User already exists. You cannot log wiht google account");
+        console.log(profile);
+        return done(null, false, {
+          message: "User already exists. You cannot log wiht google account",
+        });
       } catch (error) {
         return done(error, null);
       }
@@ -70,21 +74,16 @@ const googleCallback = (req, res, next) => {
         return next(err);
       }
       if (!user) {
-        return res.status(403).json({
-          success: false,
-          message: info?.message || "Authentication failed, please contact us.",
-        });
+        return res.send(
+          "User already exists. You cannot log wiht google account"
+        );
       }
 
       req.logIn(user, token, (err) => {
         if (err) {
           return next(err);
         }
-        res.json({
-          success: true,
-          message: "User logged in successfully",
-          token: token,
-        });
+        res.json({ message: "User logged in successfully", token: token });
       });
     }
   )(req, res, next);
