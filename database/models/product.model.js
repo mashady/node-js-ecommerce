@@ -7,42 +7,40 @@ const productSchema = mongoose.Schema(
       required: true,
       trim: true,
       minlength: 5,
-      maxlength: 100
+      maxlength: 100,
     },
     description: {
       type: String,
       required: true,
       minlength: 10,
-      trim: true
+      trim: true,
     },
     price: {
       type: Number,
       required: true,
-      min: 0.00, 
+      min: 0.0,
     },
     discount: {
       type: Number,
-      min: 0.00, 
-      max: 1.00
+      min: 0.0,
+      max: 1.0,
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category', 
-      required: true
+      ref: "Category",
+      required: true,
     },
-    images: [{
-      type: String,
-      trim: true,
-    }],
+    images: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
     stock: {
       type: Number,
       required: true,
-      min: 0, 
+      min: 0,
     },
-    reviews: [{ 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: 'Review'
-    }]
   },
   { timestamps: true, versionKey: false }
 );

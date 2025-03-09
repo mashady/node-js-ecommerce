@@ -154,7 +154,11 @@ const updateUser = async (req, res) => {
     if (!userID) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-
+    if (Object.keys(req.body).length === 0) {
+      return res.status(400).json({
+        message: "No update data provided",
+      });
+    }
     const user = await userModel.findById(userID);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
