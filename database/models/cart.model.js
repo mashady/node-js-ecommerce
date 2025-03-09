@@ -25,10 +25,15 @@ const cartSchema=new mongoose.Schema({
         default:1,
         min:1,
     },
+    totalPriceBeforeDiscount: {
+        type: Number,
+        default: 0,
+      },
     totalprice: {
         type: Number,
         default: 0, 
     },
+   
     },],
     subtotal:{
         type:Number,
