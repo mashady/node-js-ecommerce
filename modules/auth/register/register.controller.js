@@ -4,10 +4,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { validateUser } from "../../../middlewares/validateUser.js";
 import { sendEmail } from "../../../services/email.js";
+
 const register = async (req, res) => {
   // user must to send role [ user / seller ] => user for user accounts and sellers for seller one
-  const { email, firstName, lastName, phoneNumber, password, subscribed } =
-    req.body;
+  const { email, firstName, lastName, phoneNumber, password, role } = req.body;
 
   const existingUser = await userModel.findOne({ email });
   const existingPhoneNumber = await userModel.findOne({ phoneNumber });
@@ -26,7 +26,7 @@ const register = async (req, res) => {
     lastName,
     phoneNumber,
     password: hashedPassword,
-    subscribed,
+    role,
   });
   await newUser.save();
   //const token = newUser.generateAuthToken();
@@ -36,7 +36,7 @@ const register = async (req, res) => {
       email,
       firstName,
       lastName,
-      role: newUser.role,
+      role,
       isVerified: newUser.isVerified,
     },
     // token,
