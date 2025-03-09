@@ -14,16 +14,11 @@ export const storeValidationSchema = Joi.object({
     "string.max": "Store description cannot exceed {#limit} characters.",
   }),
 
-  storeBanner: Joi.string().uri().allow("").messages({
+  storeBanner: Joi.string().uri().messages({
     "string.uri": "Store banner must be a valid URL.",
   }),
 
-  storeLogo: Joi.string().uri().allow("").messages({
+  storeLogo: Joi.string().uri().messages({
     "string.uri": "Store logo must be a valid URL.",
-  }),
-
-  totalSales: Joi.number().min(0).default(0).messages({
-    "number.base": "Total sales must be a number.",
-    "number.min": "Total sales cannot be negative.",
   }),
 });

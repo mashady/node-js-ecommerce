@@ -1,5 +1,5 @@
 import { storeValidationSchema } from "../validation/storeValidate.js";
-export const validateOrder = (req, res, next) => {
+export const validateStore = (req, res, next) => {
   const { error } = storeValidationSchema.validate(req.body, {
     abortEarly: false,
   });
