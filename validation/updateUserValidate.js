@@ -9,11 +9,9 @@ const updateProfileSchema = Joi.object({
     "string.empty": "Name cannot be empty",
     "string.min": "Name must be at least 3 characters long",
   }),
-
   email: Joi.string().email().optional().messages({
     "string.email": "Invalid email format",
   }),
-
   phoneNumber: Joi.string()
     .pattern(new RegExp("^[0-9]{10,15}$"))
     .optional()

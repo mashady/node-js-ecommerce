@@ -46,12 +46,6 @@ const userSchema = mongoose.Schema(
     googleId: {
       type: String,
     },
-    facebookId: {
-      type: String,
-    },
-    profilePicture: {
-      type: String,
-    },
     role: {
       type: String,
       default: "user",
@@ -65,10 +59,6 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "pendding",
       enum: ["pendding", "approved", "restrict"],
-    },
-    subscribed: {
-      type: Boolean,
-      default: false,
     },
     /*
     not good aproch
