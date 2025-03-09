@@ -20,7 +20,7 @@ import upload from "../../middlewares/multer.upload.js";
 const productRoutes = express.Router();
 
 // Abdelwahab => Admin CRUD operations
-productRoutes.get("/products", getAllProducts); // only admin
+productRoutes.get("/products", getAllProducts);
 productRoutes.post(
   "/addProduct",
   upload.array("images", 5),

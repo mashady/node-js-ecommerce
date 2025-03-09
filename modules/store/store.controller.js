@@ -1,7 +1,7 @@
 import { storeModel } from "../../database/models/store.models.js";
-
+import mongoose from "mongoose";
 export const displayAllStores = async (req, res) => {
-  const stores = await storeModel.find().populate("products");
+  const stores = await storeModel.find();
 
   if (stores.length === 0) {
     return res.status(404).json({
@@ -14,13 +14,47 @@ export const displayAllStores = async (req, res) => {
 };
 
 export const displayStore = async (req, res) => {
-  const store = await storeModel.findById(req.params.id).populate("products");
-  if (!store) {
-    return res
-      .status(404)
-      .json({ success: false, message: "Store not found." });
+  try {
+    const storeId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(storeId)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid store ID format." });
+    }
+
+    const storeWithProducts = await storeModel.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(storeId) },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "user",
+          foreignField: "addedBy",
+          as: "products",
+        },
+      },
+    ]);
+
+    if (storeWithProducts.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Store not found." });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Store fetched successfully.",
+      store: storeWithProducts[0],
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching store.",
+      error: error.message,
+    });
   }
-  res.status(200).json({ success: true, store });
 };
 
 export const createStore = async (req, res) => {

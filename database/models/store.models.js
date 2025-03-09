@@ -11,8 +11,6 @@ const storeSchema = new mongoose.Schema(
     storeDescription: { type: String },
     storeBanner: { type: String },
     storeLogo: { type: String },
-    products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
-    totalSales: { type: Number, default: 0 },
   },
   { timestamps: true, versionKey: false }
 );
