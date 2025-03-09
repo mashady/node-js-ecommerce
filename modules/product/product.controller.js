@@ -1,52 +1,53 @@
 import { productModel } from "../../database/models/product.model.js";
 import mongoose from "mongoose";
 
-const getAllProducts = async (req, res) => {
+const getSingleProduct = async (req, res) => {
   try {
-    const { page = 1, limit = 2 } = req.query; //don't forget to change the limit <==
-    const skip = (page - 1) * limit;
+    const productId = req.params.id;
 
-    const products = await productModel
-      .find(
-        {
-          _id: { $ne: req?.user?._id },
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID format" });
+    }
+
+    const product = await productModel.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(productId) },
+      },
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "productID",
+          as: "reviews",
         },
-        {
-          name: 0,
-          description: 0,
-          price: 0,
-          discount: 0,
-          category: 0,
-          addedBy: 0,
-          images: 0,
-          stock: 0,
-          reviews: 0,
-        }
-      )
-      .sort("-created")
-      .limit(limit * 1)
-      .skip(skip)
-      .exec();
+      },
+    ]);
 
-    if (products.length === 0)
-      return res
-        .status(200)
-        .json({ Message: "We have no products at this moment" });
+    if (!product.length) {
+      return res.status(404).json({ message: "Product not found" });
+    }
 
-    const productsNumber = await productModel.countDocuments();
-    const totalPages = Math.ceil(productsNumber / limit);
-
-    res.status(200).json({
-      message: "Products fetched successfully",
-      totalProducts: productsNumber,
-      totalPages: totalPages,
-      page: Number(page),
-      skip: Number(skip),
-      data: products,
+    return res.status(200).json({
+      message: "Product fetched successfully",
+      product: product[0],
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({
+      message: "Error fetching product",
+      error: error.message,
+    });
   }
+};
+
+const getAllProducts = async (req, res) => {
+  const products = await productModel.find();
+
+  if (products.length === 0)
+    return res
+      .status(200)
+      .json({ Message: "We have no products at this moment" });
+
+  res.status(200).json({ message: "All products", products });
 };
 
 const addProduct = async (req, res) => {
@@ -56,13 +57,12 @@ const addProduct = async (req, res) => {
     const files = req.files;
 
     const imagePaths = files?.map((file) => `/uploads/${file.filename}`) || [];
-    const userID = req.user._id;
+
     const addedProduct = await productModel.create({
       name,
       price,
       images: imagePaths,
       description,
-      addedBy: userID,
       category,
       stock,
       discount,
@@ -72,7 +72,7 @@ const addProduct = async (req, res) => {
     res
       .status(201)
       .json({ message: "Product added successfully!", addedProduct });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: error.message });
   }
 };
@@ -80,8 +80,6 @@ const addProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const reqProduct = req.params.Id;
-    const userID = req.user._id;
-
     const existingProduct = await productModel.findById(reqProduct);
 
     let imagePaths = existingProduct.images || [];
@@ -91,7 +89,7 @@ const updateProduct = async (req, res) => {
 
     const updatedProduct = await productModel.findByIdAndUpdate(
       reqProduct,
-      { ...req.body, images: imagePaths, updatedBy: userID },
+      { ...req.body, images: imagePaths },
       { new: true }
     );
 
@@ -104,58 +102,31 @@ const updateProduct = async (req, res) => {
 };
 
 const deleteProduct = async (req, res) => {
-  try {
-    const reqProduct = req.params.Id;
+  const reqProduct = req.params.Id;
 
-    const deletedProduct = await productModel.findByIdAndDelete(reqProduct);
+  const deletedProduct = await productModel.findByIdAndDelete(reqProduct);
 
-    res
-      .status(200)
-      .json({ message: "Product deleted succcessfully.", deletedProduct });
-  } catch {
-    res.status(500).json({ error: error.message });
-  }
+  res
+    .status(200)
+    .json({ message: "Product deleted succcessfully.", deletedProduct });
 };
 
 const productSearch = async (req, res) => {
-  try {
-    if (!req.query.name) {
-      return res.status(400).json({ message: "Search term is required" });
-    }
-
-    const search = await productModel.find({
-      name: { $regex: req.query.name, $options: "i" },
-    });
-
-    if (search.length === 0)
-      return res.status(404).json({ message: "This product doesn't exist" });
-
-    res.json({
-      message: "Search results",
-      count: search.length,
-      search,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  const search = await productModel.find({
+    name: { $regex: req.query.name, $options: "i" },
+  });
+  res.json({ message: "Search results", search });
 };
 
 const productPrice = async (req, res) => {
-  try {
-    let { aboveprice, belowprice } = req.query;
-    let filter = {};
+  let { aboveprice, belowprice } = req.query;
+  let filter = {};
 
-    if (aboveprice || belowprice) {
-      filter.price = {};
-      if (aboveprice) filter.price.$gte = Number(aboveprice);
-      if (belowprice) filter.price.$lte = Number(belowprice);
-    }
+  if (aboveprice) filter.price = { $gte: aboveprice };
+  if (belowprice) filter.price = { ...filter.price, $lte: belowprice };
 
-    const products = await productModel.find(filter);
-    res.json({ message: "Filtered products", products });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  const products = await productModel.find(filter);
+  res.json({ message: "Filtered products", products });
 };
 
 const categorySearch = async (req, res) => {
@@ -193,4 +164,5 @@ export {
   productSearch,
   productPrice,
   categorySearch,
+  getSingleProduct,
 };
