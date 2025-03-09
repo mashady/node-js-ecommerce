@@ -36,7 +36,7 @@ const login = async (req, res) => {
     return res.status(403).json({
       message: "Account not verified. Please verify your account first.",
     });
-  if (user.AdministrativeStatus === "pending")
+  if (user.AdministrativeStatus === "pendding")
     return res.status(403).json({
       message: "Your account is being reviewed. Please wait.",
     });
