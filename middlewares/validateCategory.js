@@ -1,6 +1,6 @@
 import { categorySchema } from "../validation/categoryValidate.js";
 import { categoryModel } from "../database/models/category.model.js";
-
+import mongoose from "mongoose";
 
 export const validateCategory = (req, res, next) => {
     const validation = categorySchema.validate(req.body, { abortEarly: false });
@@ -14,6 +14,10 @@ export const validateCategory = (req, res, next) => {
 
 export const validateCategoryId = async (req, res, next) => {
     const reqCategory = req.params.catId;
+    
+    if (!mongoose.Types.ObjectId.isValid(reqCategory)) {
+          return res.status(400).json({ message: "Invalid cart ID format!" });
+        }
 
     const foundedCategoryById = await categoryModel.findById(reqCategory);
 

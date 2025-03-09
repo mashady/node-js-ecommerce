@@ -4,7 +4,6 @@ import passport from "passport";
 import session from "express-session";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import db from "./database/db.js";
-import clg from "./middlewares/clg.js";
 import notFound from "./middlewares/404.js";
 import LoginRoute from "./modules/auth/login/login.routes.js";
 import RegisterRoute from "./modules/auth/register/register.routes.js";
@@ -49,7 +48,7 @@ app.use(bannerRoutes);
 app.use(wishlistRoutes);
 app.use(orderRouter);
 app.use(storeRoutes);
-app.use(clg);
+// app.use(clg);
 app.use(notFound);
 
 db();
