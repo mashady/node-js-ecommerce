@@ -7,6 +7,7 @@ import {
   productSearch,
   categorySearch,
   productPrice,
+  getSingleProduct,
 } from "./product.controller.js";
 
 import {
@@ -15,12 +16,8 @@ import {
 } from "../../middlewares/validateProduct.js";
 
 import upload from "../../middlewares/multer.upload.js";
-import auth from "../../middlewares/auth.js";
-import role from "../../middlewares/role.js";
 
-export const productRoutes = express.Router();
-productRoutes.use(auth);
-productRoutes.use(role.check("admin", "seller"));
+const productRoutes = express.Router();
 
 // Abdelwahab => Admin CRUD operations
 productRoutes.get("/products", getAllProducts);
@@ -47,6 +44,7 @@ productRoutes.delete("/deleteProduct/:Id", validateProductId, deleteProduct);
 */
 
 productRoutes.get("/product", productSearch);
+productRoutes.get("/product/:id", getSingleProduct);
 productRoutes.get("/products/price", productPrice);
 productRoutes.get("/products/category", categorySearch);
 
