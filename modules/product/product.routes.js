@@ -7,6 +7,7 @@ import {
   productSearch,
   categorySearch,
   productPrice,
+  getSingleProduct,
 } from "./product.controller.js";
 
 import {
@@ -19,8 +20,13 @@ import upload from "../../middlewares/multer.upload.js";
 const productRoutes = express.Router();
 
 // Abdelwahab => Admin CRUD operations
-productRoutes.get("/products", getAllProducts);
-productRoutes.post("/addProduct", upload.array("images", 5), validateProduct, addProduct);
+productRoutes.get("/products", getAllProducts); // only admin
+productRoutes.post(
+  "/addProduct",
+  upload.array("images", 5),
+  validateProduct,
+  addProduct
+);
 productRoutes.put(
   "/updateProduct/:Id",
   upload.array("images", 5),
@@ -38,6 +44,7 @@ productRoutes.delete("/deleteProduct/:Id", validateProductId, deleteProduct);
 */
 
 productRoutes.get("/product", productSearch);
+productRoutes.get("/product/:id", getSingleProduct);
 productRoutes.get("/products/price", productPrice);
 productRoutes.get("/products/category", categorySearch);
 

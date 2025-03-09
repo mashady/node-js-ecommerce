@@ -11,7 +11,12 @@ const getWishlist = async (req, res) => {
     if (!wishlist) {
       return res.status(404).json({ message: "Wishlist not found" });
     }
-
+    if (wishlist.products.length === 0) {
+      return res.status(200).json({
+        message: "Your wishlist is empty",
+        products: [],
+      });
+    }
     const wishlistWithDetails = wishlist.products.map((item) => ({
       productId: item.productId,
     }));

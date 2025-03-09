@@ -1,6 +1,43 @@
 import { productModel } from "../../database/models/product.model.js";
 import mongoose from "mongoose";
 
+const getSingleProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ message: "Invalid product ID format" });
+    }
+
+    const product = await productModel.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(productId) },
+      },
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "productID",
+          as: "reviews",
+        },
+      },
+    ]);
+
+    if (!product.length) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    return res.status(200).json({
+      message: "Product fetched successfully",
+      product: product[0],
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error fetching product",
+      error: error.message,
+    });
+  }
+};
 
 const getAllProducts = async (req, res) => {
   const products = await productModel.find();
@@ -15,11 +52,11 @@ const getAllProducts = async (req, res) => {
 
 const addProduct = async (req, res) => {
   try {
-
-    const { name, description, price, category, stock, discount, reviews } = req.body;
+    const { name, description, price, category, stock, discount, reviews } =
+      req.body;
     const files = req.files;
 
-    const imagePaths = files?.map(file => `/uploads/${file.filename}`) || [];
+    const imagePaths = files?.map((file) => `/uploads/${file.filename}`) || [];
 
     const addedProduct = await productModel.create({
       name,
@@ -29,16 +66,15 @@ const addProduct = async (req, res) => {
       category,
       stock,
       discount,
-      reviews
+      reviews,
     });
 
-    res.status(201).json({ message: "Product added successfully!", addedProduct });
-
-
+    res
+      .status(201)
+      .json({ message: "Product added successfully!", addedProduct });
   } catch {
     res.status(500).json({ error: error.message });
   }
-
 };
 
 const updateProduct = async (req, res) => {
@@ -57,7 +93,9 @@ const updateProduct = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json({ message: "Product updated successfully.", updatedProduct });
+    res
+      .status(200)
+      .json({ message: "Product updated successfully.", updatedProduct });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -126,4 +164,5 @@ export {
   productSearch,
   productPrice,
   categorySearch,
+  getSingleProduct,
 };
