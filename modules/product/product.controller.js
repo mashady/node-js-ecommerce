@@ -3,14 +3,50 @@ import mongoose from "mongoose";
 
 
 const getAllProducts = async (req, res) => {
-  const products = await productModel.find();
+  try {
+    const { page = 1, limit = 2 } = req.query; //don't forget to change the limit <==
+    const skip = (page - 1) * limit;
 
-  if (products.length === 0)
-    return res
-      .status(200)
-      .json({ Message: "We have no products at this moment" });
+    const products = await productModel.find(
+      {
+        _id: { $ne: req?.user?._id }
+      },
+      {
+        name: 0,
+        description: 0,
+        price: 0,
+        discount: 0,
+        category: 0,
+        addedBy: 0,
+        images: 0,
+        stock: 0,
+        reviews: 0,
+      }
+    )
+      .sort("-created")
+      .limit(limit * 1)
+      .skip(skip)
+      .exec();
 
-  res.status(200).json({ message: "All products", products });
+    if (products.length === 0)
+      return res
+        .status(200)
+        .json({ Message: "We have no products at this moment" });
+
+    const productsNumber = await productModel.countDocuments();
+    const totalPages = Math.ceil(productsNumber / limit);
+
+    res.status(200).json({
+      message: "Products fetched successfully",
+      totalProducts: productsNumber,
+      totalPages: totalPages,
+      page: Number(page),
+      skip: Number(skip),
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const addProduct = async (req, res) => {
@@ -20,12 +56,13 @@ const addProduct = async (req, res) => {
     const files = req.files;
 
     const imagePaths = files?.map(file => `/uploads/${file.filename}`) || [];
-
+    const userID = req.user._id;
     const addedProduct = await productModel.create({
       name,
       price,
       images: imagePaths,
       description,
+      addedBy: userID,
       category,
       stock,
       discount,
@@ -35,7 +72,7 @@ const addProduct = async (req, res) => {
     res.status(201).json({ message: "Product added successfully!", addedProduct });
 
 
-  } catch {
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 
@@ -44,8 +81,10 @@ const addProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const reqProduct = req.params.Id;
-    const existingProduct = await productModel.findById(reqProduct);
+    const userID = req.user._id;
 
+    const existingProduct = await productModel.findById(reqProduct);
+    
     let imagePaths = existingProduct.images || [];
     if (req.files && req.files.length > 0) {
       imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
@@ -53,7 +92,7 @@ const updateProduct = async (req, res) => {
 
     const updatedProduct = await productModel.findByIdAndUpdate(
       reqProduct,
-      { ...req.body, images: imagePaths },
+      { ...req.body, images: imagePaths, updatedBy: userID },
       { new: true }
     );
 
@@ -64,31 +103,58 @@ const updateProduct = async (req, res) => {
 };
 
 const deleteProduct = async (req, res) => {
-  const reqProduct = req.params.Id;
+  try {
+    const reqProduct = req.params.Id;
 
-  const deletedProduct = await productModel.findByIdAndDelete(reqProduct);
+    const deletedProduct = await productModel.findByIdAndDelete(reqProduct);
 
-  res
-    .status(200)
-    .json({ message: "Product deleted succcessfully.", deletedProduct });
+    res
+      .status(200)
+      .json({ message: "Product deleted succcessfully.", deletedProduct });
+  } catch {
+    res.status(500).json({ error: error.message });
+  }
+
 };
 
 const productSearch = async (req, res) => {
-  const search = await productModel.find({
-    name: { $regex: req.query.name, $options: "i" },
-  });
-  res.json({ message: "Search results", search });
+  try {
+    if (!req.query.name) {
+      return res.status(400).json({ message: "Search term is required" });
+    }
+    
+    const search = await productModel.find({
+      name: { $regex: req.query.name, $options: "i" },
+    });
+
+    if(search.length === 0) return res.status(404).json({ message: "This product doesn't exist" });
+    
+    res.json({ 
+      message: "Search results", 
+      count: search.length,
+      search 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const productPrice = async (req, res) => {
-  let { aboveprice, belowprice } = req.query;
-  let filter = {};
+  try {
+    let { aboveprice, belowprice } = req.query;
+    let filter = {};
 
-  if (aboveprice) filter.price = { $gte: aboveprice };
-  if (belowprice) filter.price = { ...filter.price, $lte: belowprice };
+    if (aboveprice || belowprice) {
+      filter.price = {};
+      if (aboveprice) filter.price.$gte = Number(aboveprice);
+      if (belowprice) filter.price.$lte = Number(belowprice);
+    }
 
-  const products = await productModel.find(filter);
-  res.json({ message: "Filtered products", products });
+    const products = await productModel.find(filter);
+    res.json({ message: "Filtered products", products });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 const categorySearch = async (req, res) => {

@@ -15,8 +15,12 @@ import {
 } from "../../middlewares/validateProduct.js";
 
 import upload from "../../middlewares/multer.upload.js";
+import auth from "../../middlewares/auth.js";
+import role from "../../middlewares/role.js";
 
-const productRoutes = express.Router();
+export const productRoutes = express.Router();
+productRoutes.use(auth);
+productRoutes.use(role.check('admin', 'seller'));
 
 // Abdelwahab => Admin CRUD operations
 productRoutes.get("/products", getAllProducts);

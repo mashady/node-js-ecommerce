@@ -4,8 +4,12 @@ import { productModel } from "../../database/models/product.model.js";
 export const addCategory = async (req, res) => {
     try {
         const { name } = req.body;
+        const userID = req.user._id;
 
-        const addedCategory = await categoryModel.insertOne({ name })
+        const addedCategory = await categoryModel.create({
+            name,
+            addedBy: userID
+        });
         res.status(201).json({ message: "Category added successfully.", addedCategory });
     } catch {
         console.error("Error add category:", error);
@@ -26,11 +30,38 @@ export const getCategories = async (req, res) => {
     }
 }
 
+export const getCategoryByName = async (req, res) => {
+    try {
+        const name = req.query.name;
+
+        if (!name) return res.status(400).json({ message: "The category's name is required to search for" });
+
+        const reqCategory = await categoryModel.find(
+            {
+                name: { $regex: name, $options: "i" },
+            }
+        );
+
+        if (reqCategory.length === 0) return res.status(404).json({ message: "This category doesn't exist" });
+
+        res.status(200).json({ message: "Required category fetched successfully", reqCategory })
+    } catch (error) {
+        res.status(500).json({ Message: "Failed to get category", Error: error.message });
+    }
+
+}
+
 export const updateCategory = async (req, res) => {
     try {
         const reqCategory = req.params.catId;
+        const userID = req.user._id;
 
-        const updatedCategory = await categoryModel.findByIdAndUpdate(reqCategory, req.body);
+
+        const updatedCategory = await categoryModel.findByIdAndUpdate(
+            reqCategory,
+            { ...req.body, updatedBy: userID },
+            { new: true }
+        );
 
         res.status(200).json({ Message: "Category updated successfully", updatedCategory });
     } catch {

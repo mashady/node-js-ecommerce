@@ -30,6 +30,15 @@ const productSchema = mongoose.Schema(
       ref: 'Category', 
       required: true
     },
+    addedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User', 
+      required: true
+    },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User', 
+    },
     images: [{
       type: String,
       trim: true,

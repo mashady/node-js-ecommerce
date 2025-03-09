@@ -18,7 +18,16 @@ const bannerSchema = mongoose.Schema(
         images: [{
             type: String,
             trim: true,
-          }],
+        }],
+        addedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        updatedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
     },
     { timestamps: true, versionKey: false }
 );
