@@ -1,5 +1,7 @@
 # Online-store
 
+![erd](https://github.com/mashady/node-js-ecommerce/blob/master/erd.png)
+
 ## Overview
 
 This document outlines the features and functionality for the Online-store. The platform allows customers to shop for products from various sellers, manage their orders, and process payments securely. The admin panel offers a comprehensive interface to manage users, products, orders, and promotions. Sellers (vendors) can manage their own product listings and order processing.
