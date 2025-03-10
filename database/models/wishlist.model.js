@@ -14,15 +14,6 @@ const wishlistSchema = mongoose.Schema(
           ref: "Product",
           required: true,
         },
-        quantity: {
-          type: Number,
-          default: 1,
-          required: true,
-        },
-        price: {
-          type: Number,
-          required: true,
-        },
       },
     ],
   },

@@ -3,6 +3,10 @@ import config from "config";
 import passport from "passport";
 import session from "express-session";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
+import path from "path";
+import { fileURLToPath } from "url";
 import db from "./database/db.js";
 import clg from "./middlewares/clg.js";
 import notFound from "./middlewares/404.js";
@@ -13,9 +17,21 @@ import gAuthRoutes from "./modules/auth/googleAuth/gAuth.routes.js";
 import productRoutes from "./modules/product/product.routes.js";
 import { categoryRoutes } from "./modules/category/category.routes.js";
 import reviewRoutes from "./modules/reviews/review.routes.js";
+import userRoutes from "./modules/user/user.routes.js";
+import orderRouter from "./modules/order/order.route.js";
+import { promocodeRoutes } from "./modules/promocode/promocode.routes.js";
+import { bannerRoutes } from "./modules/banner/banner.routes.js";
+import cors from "cors";
+import wishlistRoutes from "./modules/wishlist/wishlist.routes.js";
+import storeRoutes from "./modules/store/store.routes.js";
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const swaggerDocument = YAML.load(path.join(__dirname, "./docs/swagger.yaml"));
 
+app.use(cors());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(express.json());
 app.use(
   session({
@@ -32,9 +48,15 @@ app.use(LoginRoute);
 app.use(RegisterRoute);
 app.use(cartRoute);
 app.use(productRoutes);
+app.use("/uploads", express.static("uploads"));
 app.use(categoryRoutes);
 app.use(reviewRoutes);
-
+app.use(userRoutes);
+app.use(promocodeRoutes);
+app.use(bannerRoutes);
+app.use(wishlistRoutes);
+app.use(orderRouter);
+app.use(storeRoutes);
 app.use(clg);
 app.use(notFound);
 

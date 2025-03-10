@@ -1,7 +1,7 @@
 import {
   addWishlistSchema,
   removeWishlistSchema,
-} from "../validation/wishlistValidate";
+} from "../validation/wishlistValidate.js";
 
 export const validateAddToWishlist = (req, res, next) => {
   const validation = addWishlistSchema.validate(req.body, {

@@ -23,6 +23,11 @@ export const productSchema = Joi.object({
         "number.max": "Price can't exceed 10,000.",
         "any.required": "Price is required."
     }),
+    discount: Joi.number().min(0).max(1).messages({
+        "number.base": "Discount must be a valid number.",
+        "number.min": "Discount must be at least 0 as 0% discount.",
+        "number.max": "Discount can't exceed 1 as 100% discount.",
+    }),
     category: Joi.string()
         .required()
         .messages({

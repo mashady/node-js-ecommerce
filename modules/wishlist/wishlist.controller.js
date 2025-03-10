@@ -1,5 +1,5 @@
-import wishlistModel from "../../database/models/wishlist.model.js";
-import productModel from "../../database/models/product.model.js";
+import { wishlistModel } from "../../database/models/wishlist.model.js";
+import { productModel } from "../../database/models/product.model.js";
 const getWishlist = async (req, res) => {
   const userId = req.user._id;
 
@@ -11,12 +11,14 @@ const getWishlist = async (req, res) => {
     if (!wishlist) {
       return res.status(404).json({ message: "Wishlist not found" });
     }
-
+    if (wishlist.products.length === 0) {
+      return res.status(200).json({
+        message: "Your wishlist is empty",
+        products: [],
+      });
+    }
     const wishlistWithDetails = wishlist.products.map((item) => ({
       productId: item.productId,
-      quantity: item.quantity,
-      price: item.price,
-      totalPrice: item.price * item.quantity,
     }));
 
     res.status(200).json(wishlistWithDetails);
@@ -28,7 +30,7 @@ const getWishlist = async (req, res) => {
 };
 
 const addWishlist = async (req, res) => {
-  const { productId, quantity } = req.body;
+  const { productId } = req.body;
   const userId = req.user._id;
 
   try {
@@ -37,14 +39,12 @@ const addWishlist = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    const price = product.price;
-
     let wishlist = await wishlistModel.findOne({ userID: userId });
 
     if (!wishlist) {
       wishlist = new wishlistModel({
         userID: userId,
-        products: [{ productId, quantity, price }],
+        products: [{ productId }],
       });
       await wishlist.save();
     } else {
@@ -53,9 +53,11 @@ const addWishlist = async (req, res) => {
       );
 
       if (existingProductIndex !== -1) {
-        wishlist.products[existingProductIndex].quantity += quantity;
+        return res.status(400).json({
+          message: "Product already exist in wishlist",
+        });
       } else {
-        wishlist.products.push({ productId, quantity, price });
+        wishlist.products.push({ productId });
       }
       await wishlist.save();
     }

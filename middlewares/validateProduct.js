@@ -7,12 +7,19 @@ import { productModel } from "../database/models/product.model.js";
 export const validateProduct = async (req, res, next) => {
     try {
         const { category, reviews } = req.body;
-        if ( category && !mongoose.Types.ObjectId.isValid(category)) {
+
+        if (req.files && req.files.length > 0) {
+            req.body.images = req.files.map(file => `/uploads/${file.filename}`);
+        } else {
+            req.body.images = [];
+        }
+
+        if (category && !mongoose.Types.ObjectId.isValid(category)) {
             return res.status(400).json({ error: "Invalid category ID format." });
         }
 
         const categoryExists = await categoryModel.findById(category);
-        if ( category && !categoryExists) {
+        if (category && !categoryExists) {
             return res.status(404).json({ error: "Category not found." });
         }
 

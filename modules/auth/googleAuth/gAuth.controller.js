@@ -37,6 +37,11 @@ passport.use(
           console.log("New user created:", newUser);
           return done(null, newUser, token);
         }
+        if (userGID && userGID.AdministrativeStatus === "restrict") {
+          return done(null, false, {
+            message: "Your account has been restricted. Please contact us.",
+          });
+        }
         if (userGID && userGID.provider === "google") {
           return done(null, userGID, userGID.generateAuthToken());
         }
