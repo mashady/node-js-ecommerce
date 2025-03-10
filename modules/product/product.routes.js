@@ -7,7 +7,6 @@ import {
   productSearch,
   categorySearch,
   productPrice,
-  getSingleProduct,
 } from "./product.controller.js";
 
 import {
@@ -16,13 +15,17 @@ import {
 } from "../../middlewares/validateProduct.js";
 
 import upload from "../../middlewares/multer.upload.js";
+import auth from "../../middlewares/auth.js";
+import role from "../../middlewares/role.js";
 
-const productRoutes = express.Router();
+export const productRoutes = express.Router();
 
 // Abdelwahab => Admin CRUD operations
 productRoutes.get("/products", getAllProducts);
 productRoutes.post(
   "/addProduct",
+  auth,
+  role.check("admin", "seller"),
   upload.array("images", 5),
   validateProduct,
   addProduct
@@ -30,11 +33,19 @@ productRoutes.post(
 productRoutes.put(
   "/updateProduct/:Id",
   upload.array("images", 5),
+  auth,
+  role.check("admin", "seller"),
   validateProductId,
   validateProduct,
   updateProduct
 );
-productRoutes.delete("/deleteProduct/:Id", validateProductId, deleteProduct);
+productRoutes.delete(
+  "/deleteProduct/:Id",
+  auth,
+  role.check("admin", "seller"),
+  validateProductId,
+  deleteProduct
+);
 
 /**
 1- fetch single product by id
@@ -44,7 +55,6 @@ productRoutes.delete("/deleteProduct/:Id", validateProductId, deleteProduct);
 */
 
 productRoutes.get("/product", productSearch);
-productRoutes.get("/product/:id", getSingleProduct);
 productRoutes.get("/products/price", productPrice);
 productRoutes.get("/products/category", categorySearch);
 

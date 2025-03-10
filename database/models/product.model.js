@@ -30,6 +30,15 @@ const productSchema = mongoose.Schema(
       ref: "Category",
       required: true,
     },
+    addedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     images: [
       {
         type: String,
@@ -41,6 +50,12 @@ const productSchema = mongoose.Schema(
       required: true,
       min: 0,
     },
+    reviews: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Review",
+      },
+    ],
   },
   { timestamps: true, versionKey: false }
 );
