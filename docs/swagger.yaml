@@ -1,0 +1,855 @@
+openapi: 3.0.0
+info:
+  title: online-store
+  description: >-
+
+
+    This docs guides you through CRUD operations (GET, POST, PUT, DELETE)
+
+  version: 1.0.0
+servers:
+  - url: http://localhost:8088
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+tags:
+  - name: auth
+  - name: user
+  - name: wishlist
+  - name: reviews
+  - name: store
+paths:
+  /login:
+    post:
+      tags:
+        - auth
+      summary: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: "@gmail.com"
+                password: "123456789"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /register:
+    post:
+      tags:
+        - auth
+      summary: User registration
+      description: Registers a new user with required details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                phoneNumber:
+                  type: number
+                  description: Phone number must be unique
+                address:
+                  type: string
+                role:
+                  type: string
+                  enum: [user, seller]
+                  description: Role must be either 'user' or 'seller'
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+                - phoneNumber
+                - role
+      responses:
+        "201":
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /user:
+    get:
+      tags:
+        - user
+      summary: get all users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - user
+      summary: update status
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                userId: 67ccf983075474f1aa4c6241
+                status: approved
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /user/search:
+    get:
+      tags:
+        - user
+      summary: search users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user
+          in: query
+          schema:
+            type: string
+          example: muhammed
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /user/profile:
+    get:
+      tags:
+        - user
+      summary: user profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - user
+      summary: update profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example: {}
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /wishlist:
+    get:
+      tags:
+        - wishlist
+      summary: get user wishlist
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - wishlist
+      summary: add wishlist
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                productId: 67cc0cfbb08f66199566aaaa
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - wishlist
+      summary: delete wishlist
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /review:
+    post:
+      tags:
+        - reviews
+      summary: add review
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                content: good product
+                rating: 5
+                productID: 67cc0cfbb08f66199566aaaa
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /review/67cd3014e1866fe4353a87a1:
+    put:
+      tags:
+        - reviews
+      summary: update review
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                content: bad product
+                rating: 5
+                productID: 67cc0cfbb08f66199566aaaa
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /store:
+    post:
+      tags:
+        - store
+      summary: create store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                businessName: mashady store
+                storeDescription: mashady store desc
+                storeBanner: https://example.com/banner1.jpg
+                storeLogo: https://example.com/banner1.jpg
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /store/67cd3f7e3b78f810a77743f7:
+    put:
+      tags:
+        - store
+      summary: update store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example: {}
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - store
+      summary: delete store
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /addCategory:
+    post:
+      tags:
+        - Category
+      summary: addCategory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: new category
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /getCategories:
+    get:
+      tags:
+        - Category
+      summary: Get all categories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /updateCategory/67ccfc5a075474f1aa4c6250:
+    put:
+      tags:
+        - Category
+      summary: Update category
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: Home for testing
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /deleteCategory/67ccfc5a075474f1aa4c6250:
+    delete:
+      tags:
+        - Category
+      summary: Delete category
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /getCategory:
+    get:
+      tags:
+        - Category
+      summary: Get category by name
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+          example: Labtops
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /products:
+    get:
+      tags:
+        - Product
+      summary: Get all products
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: "2"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /addProduct:
+    post:
+      tags:
+        - Product
+      summary: Add product
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: product to test category deleted
+                description:
+                  type: string
+                  example: >-
+                    A high-performance gaming laptop with RGB lighting and
+                    powerful specs.
+                price:
+                  type: number
+                  example: "1499.99"
+                category:
+                  type: string
+                  example: 67cd1aae9f5913051aea32f2
+                stock:
+                  type: integer
+                  example: "700"
+                images:
+                  type: string
+                  format: binary
+                discount:
+                  type: number
+                  example: "0.05"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /updateProduct/67cd0cf98df3f853a17e7eb3:
+    put:
+      tags:
+        - Product
+      summary: Update product
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: New product
+                description:
+                  type: string
+                  example: >-
+                    A high-performance gaming laptop with RGB lighting and
+                    powerful specs.
+                price:
+                  type: number
+                  example: "1499.99"
+                category:
+                  type: string
+                  example: 67ccfc5a075474f1aa4c6250
+                stock:
+                  type: integer
+                  example: "70"
+                discount:
+                  type: number
+                  example: "0.05"
+                images:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /deleteProduct/67cc0cfbb08f66199566aa91:
+    delete:
+      tags:
+        - Product
+      summary: Delete product
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /product:
+    get:
+      tags:
+        - Product
+      summary: Search by name
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+          example: Noise Cancelling Earbuds
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /products/price:
+    get:
+      tags:
+        - Product
+      summary: Search by price
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: belowprice
+          in: query
+          schema:
+            type: integer
+          example: "2000"
+        - name: aboveprice
+          in: query
+          schema:
+            type: integer
+          example: "1000"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /products/category:
+    get:
+      tags:
+        - Product
+      summary: Search by category
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+          example: 67ccfc5a075474f1aa4c6250
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /getPromocodes:
+    get:
+      tags:
+        - Promocodes
+      summary: Get all promocodes
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /addPromocode:
+    post:
+      tags:
+        - Promocodes
+      summary: Add promocode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: ramadan Kareem
+                value: "0.2"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /updatePromocode/67cc337ca4309b6aa6691278:
+    put:
+      tags:
+        - Promocodes
+      summary: Update promocode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: test with whom
+                value: 0.05
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /deletePromocode/67cc337ca4309b6aa6691278:
+    delete:
+      tags:
+        - Promocodes
+      summary: Delete promocode
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /getPromocode:
+    get:
+      tags:
+        - Promocodes
+      summary: Get promocode by name
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+          example: Ramadan offers
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /getBanners:
+    get:
+      tags:
+        - Banners
+      summary: Get all banners
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /addBanner:
+    post:
+      tags:
+        - Banners
+      summary: Add banner
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Ramadan kareem
+                description:
+                  type: string
+                  example: Ramadan Mubarak for all of you, dear customers
+                images:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /updateBanner/67ccfb55075474f1aa4c6248:
+    put:
+      tags:
+        - Banners
+      summary: Update banner
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Ramadan kareem
+                description:
+                  type: string
+                  example: Ramadan Mubarak for all of you, dear customers
+                images:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /deleteBanner/67ccfb55075474f1aa4c6248:
+    delete:
+      tags:
+        - Banners
+      summary: Delete banner
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /getBanner:
+    get:
+      tags:
+        - Banners
+      summary: Get banner by title
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: title
+          in: query
+          schema:
+            type: string
+          example: Ramadan banner
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+
+  /cart:
+    get:
+      tags:
+        - Cart
+      summary: Get user cart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User cart retrieved successfully
+    post:
+      tags:
+        - Cart
+      summary: Add product to cart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+      responses:
+        "200":
+          description: Product added to cart successfully
+    delete:
+      tags:
+        - Cart
+      summary: Remove product from cart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+      responses:
+        "200":
+          description: Product removed from cart successfully
+  /cart/reduce:
+    post:
+      tags:
+        - Cart
+      summary: Reduce quantity of a product in the cart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productId:
+                  type: string
+      responses:
+        "200":
+          description: Product quantity reduced successfully
+  /checkout/cash:
+    post:
+      tags:
+        - Order
+      summary: checkout cash
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                cart: 67cc32e7a4309b6aa6691270
+                shippingAddress:
+                  fullName: John Doe
+                  address: 123 Main Street
+                  city: New York
+                  postalCode: "10001"
+                  country: USA
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /checkout/epay:
+    post:
+      tags:
+        - Order
+      summary: checkout epay
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                cart: 67ccfcf7c55c4b3ae9447d02
+                shippingAddress:
+                  fullName: John Doe
+                  address: 123 Main Street
+                  city: New York
+                  postalCode: 10fdgdfg001
+                  country: USA
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /checkout/67cce85ce380bc418f0bbeccs/cancel:
+    put:
+      tags:
+        - Order
+      summary: cancel order
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}

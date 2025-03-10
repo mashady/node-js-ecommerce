@@ -136,21 +136,30 @@ export const createCashOrder = async (req, res) => {
 export const cancelAnOrder = async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    const order = await orderModel.findByIdAndUpdate(
+    const order = await orderModel.findById(orderId);
+    if (order.status === "canceled") {
+      return res.status(400).json({ message: "Order is already canceled" });
+    }
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (
+      order.status === "shipped" ||
+      order.status === "delivered" ||
+      order.status === "paid"
+    ) {
+      return res
+        .status(400)
+        .json({
+          message: "Cannot cancel a shipped or paid or delivered order",
+        });
+    }
+    await orderModel.findByIdAndUpdate(
       orderId,
       { status: "canceled" },
       { new: true }
     );
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-    if (order.status === "canceled") {
-      return res.status(400).json({ message: "Order is already canceled" });
-    }
-    if (order.status === "shipped" || order.status === "delivered") {
-      return res.status(400).json({ message: "Cannot cancel a shipped or delivered order" });
-    }
 
     res.json({ message: "Order canceled successfully", order });
   } catch (error) {
