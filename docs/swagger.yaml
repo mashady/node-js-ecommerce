@@ -8,7 +8,7 @@ info:
 
   version: 1.0.0
 servers:
-  - url: http://localhost:8088
+  - url: https://store-react-api-2.onrender.com
 components:
   securitySchemes:
     bearerAuth:
