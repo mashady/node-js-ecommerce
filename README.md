@@ -8,7 +8,7 @@ This document outlines the features and functionality for the Online-store. The 
 
 ## Features
 
-### 1. User Management
+### ✅ User Management
 
 The platform provides robust user management to enhance the shopping experience for customers and streamline the management for admins.
 
@@ -44,7 +44,7 @@ The platform provides robust user management to enhance the shopping experience 
 - **Reviews & Ratings**
   - Customers can leave reviews and rate products they have purchased.
 
-### 2. Product Management
+### ✅ Product Management
 
 Product management enables sellers to list their items and manage their stock while customers can explore products with ease.
 
@@ -69,7 +69,7 @@ Product management enables sellers to list their items and manage their stock wh
     - Category
     - Other customizable filters
 
-### 3. Shopping Cart & Checkout
+### ✅ Shopping Cart & Checkout
 
 The shopping cart and checkout process are designed to be user-friendly and efficient.
 
@@ -94,7 +94,7 @@ The shopping cart and checkout process are designed to be user-friendly and effi
 - **Promo Codes & Discounts**
   - Customers can apply promo codes and discounts during checkout.
 
-### 4. Order Management
+### ✅ Order Management
 
 Order management is crucial for processing and tracking customer orders efficiently.
 
@@ -107,7 +107,7 @@ Order management is crucial for processing and tracking customer orders efficien
 - **Email Notifications**
   - Order updates and notifications (e.g., order shipped, order delivered) are sent via email.
 
-### 5. Payment Integration
+### ✅ Payment Integration
 
 Secure payment gateways ensure safe and seamless transactions.
 
@@ -115,7 +115,7 @@ Secure payment gateways ensure safe and seamless transactions.
   - Integration with popular payment gateways such as:
     - **Stripe**
 
-### 6. Admin Panel Features
+### ✅ Admin Panel Features
 
 The admin panel provides an extensive set of tools for managing the platform and ensuring smooth operations.
 
@@ -138,7 +138,7 @@ The admin panel provides an extensive set of tools for managing the platform and
 - **Content Management**
   - Admins can manage content for the homepage and banners.
 
-### 7. Seller (Vendor) Management
+### ✅ Seller (Vendor) Management
 
 Sellers have their own dashboard to manage products and orders.
 
