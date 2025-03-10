@@ -164,8 +164,8 @@ Sellers have their own dashboard to manage products and orders.
 
 ## Documentation
 
-[Documentation](https://linktodocumentation)
+[Documentation](https://store-react-api-2.onrender.com/api-docs)
 
 ## Demo
 
-Insert gif or link to demo
+[demo link](https://store-react-api-2.onrender.com/)
