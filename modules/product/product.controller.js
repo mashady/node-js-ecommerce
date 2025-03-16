@@ -49,6 +49,20 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const getProductById = async (req, res) => {
+  try {
+    const reqProduct = req.params.Id;
+
+    const existingProduct = await productModel.findById(reqProduct);
+    
+    res.status(200).json({ message: "Product fetched successfully.", existingProduct });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+
+}
+
 const addProduct = async (req, res) => {
   try {
     const { name, description, price, category, stock, discount, reviews } =
@@ -187,6 +201,7 @@ const categorySearch = async (req, res) => {
 
 export {
   getAllProducts,
+  getProductById,
   addProduct,
   updateProduct,
   deleteProduct,

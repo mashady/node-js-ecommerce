@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getAllProducts,
+  getProductById,
   addProduct,
   updateProduct,
   deleteProduct,
@@ -22,6 +23,7 @@ export const productRoutes = express.Router();
 
 // Abdelwahab => Admin CRUD operations
 productRoutes.get("/products", getAllProducts);
+productRoutes.get("/products/:Id", auth, validateProductId, getProductById);
 productRoutes.post(
   "/addProduct",
   auth,
