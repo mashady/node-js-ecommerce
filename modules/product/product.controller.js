@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 const getAllProducts = async (req, res) => {
   try {
-    const { page = 1, limit = 2 } = req.query; //don't forget to change the limit <==
+    const { page = 1, limit = 20 } = req.query; //don't forget to change the limit <==
     const skip = (page - 1) * limit;
 
     const products = await productModel
