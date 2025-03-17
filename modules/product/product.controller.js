@@ -10,24 +10,12 @@ const getAllProducts = async (req, res) => {
       .find(
         {
           _id: { $ne: req?.user?._id },
-        },
-        {
-          name: 0,
-          description: 0,
-          price: 0,
-          discount: 0,
-          category: 0,
-          addedBy: 0,
-          images: 0,
-          stock: 0,
-          reviews: 0,
         }
       )
       .sort("-created")
       .limit(limit * 1)
       .skip(skip)
       .exec();
-
     if (products.length === 0)
       return res
         .status(200)
