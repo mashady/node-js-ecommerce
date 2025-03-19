@@ -27,18 +27,18 @@ categoryRoutes.post(
 );
 categoryRoutes.get(
   "/getCategories",
-  auth,
+  
   getCategories
 );
 categoryRoutes.get(
   "/getCategoryById/:catId",
-  auth,
+  
   validateCategoryId,
   getCategoryById
 );
 categoryRoutes.get(
   "/getCategoryByName",
-  auth,
+  
   getCategoryByName
 );
 categoryRoutes.put(
