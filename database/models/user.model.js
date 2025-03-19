@@ -79,6 +79,9 @@ userSchema.methods.generateAuthToken = function () {
     {
       _id: this._id,
       email: this.email,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      // todo => create username
       role: this.role,
     },
     config.get("jwtPrivateKey")
