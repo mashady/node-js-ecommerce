@@ -19,6 +19,35 @@ const orderSchema = new mongoose.Schema(
       postalCode: String,
       country: String,
     },
+    products: [
+      {
+        productId: {
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Product",
+        required:true
+
+      },
+
+    name:String,
+    price:Number,
+    image:String,
+    description:String,
+    quantity:{
+        type:Number,
+        default:1,
+        min:1,
+    },
+    totalPriceBeforeDiscount: {
+        type: Number,
+        default: 0,
+      },
+    totalprice: {
+        type: Number,
+        default: 0, 
+    },
+    
+    },],
+
     totalOrderPrice: {
       type: Number,
       required: true,
