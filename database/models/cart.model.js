@@ -35,10 +35,27 @@ const cartSchema=new mongoose.Schema({
     },
    
     },],
-    subtotal:{
+    counter:{
         type:Number,
         default:0,
-    }
+      },
+      discountPercentage:{
+        type:Number,
+        default:0,
+      },
+    subtotalBeforeDiscount:{
+        type:Number,
+        default:0,
+    },
+    
+      subtotal:{
+        type:Number,
+        default:0,
+       }
+    ,PromoCodeApplied:[{
+        type: String,
+
+    }]
 },
 {timestamps:true})
 

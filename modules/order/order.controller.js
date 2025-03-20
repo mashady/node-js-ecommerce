@@ -34,6 +34,7 @@ export const createEpayOrder = async (req, res) => {
       });
     }
     const totalOrderPrice = cart.subtotal * 100;
+    const products=cart.products;
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -59,6 +60,7 @@ export const createEpayOrder = async (req, res) => {
       status: "pending",
       paymentMethod: "Epay",
       checkoutSessionId: session.id,
+      products:products
     });
 
     await cartModel.findByIdAndDelete(req.body.cart);
@@ -118,12 +120,15 @@ export const createCashOrder = async (req, res) => {
       }
     }
     const totalOrderPrice = cart.subtotal;
+    const products=cart.products;
+
 
     const order = await orderModel.create({
       user: userId,
       cart: req.body.cart,
       shippingAddress: req.body.shippingAddress,
       totalOrderPrice,
+      products
     });
 
     await cartModel.findByIdAndDelete(req.body.cart);

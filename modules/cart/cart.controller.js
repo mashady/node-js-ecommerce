@@ -8,7 +8,6 @@ export const addToCart = async (req, res) => {
     const userId = req.user._id;
     const productID = req.params.productID;
     const quantity = parseInt(req.body.quantity, 10);
-    const promoCodeName = req.body.promocode?.trim();
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
@@ -51,7 +50,7 @@ export const addToCart = async (req, res) => {
         name: addedProduct.name,
         quantity,
         price: addedProduct.price,
-        image: addedProduct.image,
+        image: addedProduct.images[0],
         description: addedProduct.description,
         totalPriceBeforeDiscount: quantity * addedProduct.price,
         totalprice: quantity * addedProduct.price * discountMultiplier,
@@ -69,20 +68,13 @@ export const addToCart = async (req, res) => {
     );
 
     let finalSubtotal = subtotalAfterProductDiscount;
-    let discountPercentage = 0;
-
-    if (promoCodeName) {
-      const promoCode = await promocodeModel.findOne({ name: promoCodeName });
-      if (promoCode) {
-        const promoDiscountAmount = finalSubtotal * promoCode.value;
-        finalSubtotal -= promoDiscountAmount;
-        discountPercentage = promoCode.value;
-      } else {
-        return res.status(400).json({ message: "Invalid promo code" });
-      }
-    }
-
+    cart.counter = cart.products.reduce((total, product) => total + product.quantity, 0);
     cart.subtotal = parseFloat(finalSubtotal.toFixed(2));
+    cart.subtotalBeforeDiscount = parseFloat(finalSubtotal.toFixed(2));
+
+    const discountPercentage = parseFloat(cart.discountPercentage) / 100;
+    const promoDiscountAmount = cart.subtotal * discountPercentage;
+    cart.subtotal -= promoDiscountAmount;
     await cart.save();
 
     res.status(200).json({
@@ -99,13 +91,12 @@ export const addToCart = async (req, res) => {
   }
 };
 
+
 export const reduceCartItemQuantity = async (req, res) => {
   try {
     const userId = req.user._id;
     const productID = req.params.productID;
     const quantity = parseInt(req.body.quantity, 10);
-    const promoCodeName = req.body.promocode?.trim();
-
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
@@ -146,6 +137,15 @@ export const reduceCartItemQuantity = async (req, res) => {
       cart.products.splice(existingProductIndex, 1);
     }
 
+    if (cart.products.length === 0) {
+      await cartModel.deleteOne({ userId });
+      return res
+        .status(200)
+        .json({
+          message: "Cart is now empty and has been deleted.",
+          data: cart,
+        });
+    }
     const subtotalBeforeDiscount = cart.products.reduce(
       (total, product) => total + product.totalPriceBeforeDiscount,
       0
@@ -156,20 +156,14 @@ export const reduceCartItemQuantity = async (req, res) => {
     );
 
     let finalSubtotal = subtotalAfterProductDiscount;
-    let discountPercentage = 0;
-
-    if (promoCodeName) {
-      const promoCode = await promocodeModel.findOne({ name: promoCodeName });
-      if (promoCode) {
-        const promoDiscountAmount = finalSubtotal * promoCode.value;
-        finalSubtotal -= promoDiscountAmount;
-        discountPercentage = promoCode.value;
-      } else {
-        return res.status(400).json({ message: "Invalid promo code" });
-      }
-    }
-
+    cart.counter = cart.products.reduce((total, product) => total + product.quantity, 0);
     cart.subtotal = parseFloat(finalSubtotal.toFixed(2));
+    cart.subtotalBeforeDiscount=parseFloat(finalSubtotal.toFixed(2));
+    const discountPercentage = parseFloat(cart.discountPercentage) / 100;
+    const promoDiscountAmount = cart.subtotal * discountPercentage;
+    cart.subtotal -= promoDiscountAmount;
+
+
     await cart.save();
 
     res.status(200).json({
@@ -216,6 +210,10 @@ export const deleteFromCart = async (req, res) => {
       0
     );
     cart.subtotal = parseFloat(subtotalAfterRemoval.toFixed(2));
+    cart.subtotalBeforeDiscount = parseFloat(subtotalAfterRemoval.toFixed(2));
+    const discountPercentage = parseFloat(cart.discountPercentage) / 100;
+    const promoDiscountAmount = cart.subtotal * discountPercentage;
+    cart.subtotal -= promoDiscountAmount;
 
     if (cart.products.length === 0) {
       await cartModel.deleteOne({ userId });
@@ -226,6 +224,7 @@ export const deleteFromCart = async (req, res) => {
           data: cart,
         });
     }
+    cart.counter = cart.products.reduce((total, product) => total + product.quantity, 0);
 
     await cart.save();
     return res
@@ -236,6 +235,36 @@ export const deleteFromCart = async (req, res) => {
       res.status(500).json({ message: "Internal Server Error", error });
   }
 };
+
+
+  export const deleteCart = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: " Invalid user ID" });
+    }
+   
+    const cart = await cartModel.findOneAndDelete({ userId });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+      return res
+        .status(200)
+        .json({
+          message: "Cart is now empty and has been deleted.",
+          data: cart,
+        });
+
+  } catch (error) {
+    console.log("error deleting from cart", error),
+      res.status(500).json({ message: "Internal Server Error", error });
+  }
+};
+
+
+
 
 export const getUserCart = async (req, res) => {
   try {
@@ -251,3 +280,40 @@ export const getUserCart = async (req, res) => {
       res.status(500).json({ message: "Internal Server Error", error });
   }
 };
+
+
+  export const addPromoCode = async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const cart = await cartModel.findOne({ userId });
+      const promoCodeName = req.body.promocode?.trim();
+
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+
+      if (!promoCodeName) {
+        return res.status(400).json({ message: "Promo code is required" });
+      }
+
+      const promoCode = await promocodeModel.findOne({ name: promoCodeName });
+
+      if (!promoCode) {
+        return res.status(400).json({ message: "Invalid promo code" });
+      }
+      if (cart.PromoCodeApplied.includes(promoCode.name)) {
+        return res.status(400).json({ message: "you applied this code before" });
+      }
+      cart.PromoCodeApplied.push(promoCode.name);
+      const promoDiscountAmount = cart.subtotal * promoCode.value; 
+      cart.subtotal -= promoDiscountAmount;
+      cart.discountPercentage += (promoCode.value* 100)
+      await cart.save(); 
+
+      res.status(200).json({ message: "Promo code applied successfully", cart });
+
+    } catch (error) {
+      console.error("Error applying promo code:", error);
+      res.status(500).json({ message: "Internal Server Error", error });
+    }
+  };
