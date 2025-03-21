@@ -92,19 +92,7 @@ const updateProduct = async (req, res) => {
     }
     
     
-    let imagePaths = [...existingProduct.images]; 
-    
-    
-    if (req.body.existingImages) {
-      const existingImagesToKeep = JSON.parse(req.body.existingImages);
-      imagePaths = imagePaths.filter(img => existingImagesToKeep.includes(img));
-    }
-    
-    if (req.body.imagesToDelete) {
-      const imagesToDelete = JSON.parse(req.body.imagesToDelete);
-      imagePaths = imagePaths.filter(img => !imagesToDelete.includes(img));
-    }
-    
+    let imagePaths = existingProduct.images || []; 
     
     if (req.files && req.files.length > 0) {
       const newImagePaths = req.files.map(file => `/uploads/${file.filename}`);
