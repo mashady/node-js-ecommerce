@@ -13,7 +13,7 @@ export const orderSchema = Joi.object({
       "string.max": "Full name must be at most 100 characters",
     }),
 
-    address: Joi.string().trim().min(5).max(255).required().messages({
+    address: Joi.string().trim().min(5).max(255).messages({
       "string.empty": "Address is required",
       "string.min": "Address must be at least 5 characters",
       "string.max": "Address must be at most 255 characters",
