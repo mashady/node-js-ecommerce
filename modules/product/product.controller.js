@@ -81,26 +81,54 @@ const addProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const reqProduct = req.params.Id;
-    const userID = req.user._id;
-
-    const existingProduct = await productModel.findById(reqProduct);
-
-    let imagePaths = existingProduct.images || [];
-    if (req.files && req.files.length > 0) {
-      imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+    const productId = req.params.Id;
+    const userId = req.user._id;
+    
+    
+    const existingProduct = await productModel.findById(productId);
+    
+    if (!existingProduct) {
+      return res.status(404).json({ message: "Product not found." });
     }
-
+    
+    
+    let imagePaths = [...existingProduct.images]; 
+    
+    
+    if (req.body.existingImages) {
+      const existingImagesToKeep = JSON.parse(req.body.existingImages);
+      imagePaths = imagePaths.filter(img => existingImagesToKeep.includes(img));
+    }
+    
+    if (req.body.imagesToDelete) {
+      const imagesToDelete = JSON.parse(req.body.imagesToDelete);
+      imagePaths = imagePaths.filter(img => !imagesToDelete.includes(img));
+    }
+    
+    
+    if (req.files && req.files.length > 0) {
+      const newImagePaths = req.files.map(file => `/uploads/${file.filename}`);
+      imagePaths = [...imagePaths, ...newImagePaths];
+    }
+    
+    
     const updatedProduct = await productModel.findByIdAndUpdate(
-      reqProduct,
-      { ...req.body, images: imagePaths, updatedBy: userID },
+      productId,
+      { 
+        ...req.body, 
+        images: imagePaths, 
+        updatedBy: userId,
+        updatedAt: Date.now()
+      },
       { new: true }
     );
-
-    res
-      .status(200)
-      .json({ message: "Product updated successfully.", updatedProduct });
+    
+    res.status(200).json({ 
+      message: "Product updated successfully.", 
+      product: updatedProduct 
+    });
   } catch (error) {
+    console.error("Error updating product:", error);
     res.status(500).json({ error: error.message });
   }
 };
