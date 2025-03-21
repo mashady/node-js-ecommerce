@@ -10,6 +10,7 @@ import {
   getCategories,
   updateCategory,
   getCategoryByName,
+  getCategoryById
 } from "./category.controller.js";
 import auth from "../../middlewares/auth.js";
 import role from "../../middlewares/role.js";
@@ -26,14 +27,18 @@ categoryRoutes.post(
 );
 categoryRoutes.get(
   "/getCategories",
-  auth,
-  role.check("admin", "seller"),
+  
   getCategories
 );
 categoryRoutes.get(
-  "/getCategory",
-  auth,
-  role.check("admin", "seller"),
+  "/getCategoryById/:catId",
+  
+  validateCategoryId,
+  getCategoryById
+);
+categoryRoutes.get(
+  "/getCategoryByName",
+  
   getCategoryByName
 );
 categoryRoutes.put(

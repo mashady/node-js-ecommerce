@@ -40,9 +40,14 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "email",
     },
-    address: {
-      type: String,
-    },
+    address: [
+      {
+        address: { type: String },
+        city: { type: String },
+        country: { type: String },
+        zip: { type: String },
+      },
+    ],
     googleId: {
       type: String,
     },
@@ -79,6 +84,9 @@ userSchema.methods.generateAuthToken = function () {
     {
       _id: this._id,
       email: this.email,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      // todo => create username
       role: this.role,
     },
     config.get("jwtPrivateKey")

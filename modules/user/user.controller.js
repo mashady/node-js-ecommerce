@@ -2,6 +2,7 @@ import { userModel } from "../../database/models/user.model.js";
 import { orderModel } from "../../database/models/order.model.js";
 import mongoose from "mongoose";
 import { sendEmail } from "../../services/email.js";
+import bcrypt from "bcrypt";
 
 const getUsers = async (req, res) => {
   const { page = 1, limit = 20 } = req.query; //donot forget to change the limit <==

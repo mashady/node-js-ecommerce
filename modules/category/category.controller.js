@@ -39,6 +39,19 @@ export const getCategories = async (req, res) => {
   }
 };
 
+export const getCategoryById = async (req, res) => {
+  try {
+    const id = req.params.catId;
+
+    const existingCategory = await categoryModel.findById(id);
+    
+    res.status(200).json({ message: "Category fetched successfully.", existingCategory });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 export const getCategoryByName = async (req, res) => {
   try {
     const name = req.query.name;
@@ -48,16 +61,16 @@ export const getCategoryByName = async (req, res) => {
         .status(400)
         .json({ message: "The category's name is required to search for" });
 
-    const reqCategory = await categoryModel.find({
+    const existingCategory = await categoryModel.find({
       name: { $regex: name, $options: "i" },
     });
 
-    if (reqCategory.length === 0)
+    if (existingCategory.length === 0)
       return res.status(404).json({ message: "This category doesn't exist" });
 
     res
       .status(200)
-      .json({ message: "Required category fetched successfully", reqCategory });
+      .json({ message: "Required category fetched successfully", existingCategory });
   } catch (error) {
     res
       .status(500)

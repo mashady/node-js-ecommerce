@@ -3,31 +3,19 @@ import mongoose from "mongoose";
 
 const getAllProducts = async (req, res) => {
   try {
-    const { page = 1, limit = 2 } = req.query; //don't forget to change the limit <==
+    const { page = 1, limit = 20 } = req.query; //don't forget to change the limit <==
     const skip = (page - 1) * limit;
 
     const products = await productModel
       .find(
         {
           _id: { $ne: req?.user?._id },
-        },
-        {
-          name: 0,
-          description: 0,
-          price: 0,
-          discount: 0,
-          category: 0,
-          addedBy: 0,
-          images: 0,
-          stock: 0,
-          reviews: 0,
         }
       )
       .sort("-created")
       .limit(limit * 1)
       .skip(skip)
       .exec();
-
     if (products.length === 0)
       return res
         .status(200)
@@ -93,26 +81,42 @@ const addProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const reqProduct = req.params.Id;
-    const userID = req.user._id;
-
-    const existingProduct = await productModel.findById(reqProduct);
-
-    let imagePaths = existingProduct.images || [];
-    if (req.files && req.files.length > 0) {
-      imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+    const productId = req.params.Id;
+    const userId = req.user._id;
+    
+    
+    const existingProduct = await productModel.findById(productId);
+    
+    if (!existingProduct) {
+      return res.status(404).json({ message: "Product not found." });
     }
-
+    
+    
+    let imagePaths = existingProduct.images || []; 
+    
+    if (req.files && req.files.length > 0) {
+      const newImagePaths = req.files.map(file => `/uploads/${file.filename}`);
+      imagePaths = [...imagePaths, ...newImagePaths];
+    }
+    
+    
     const updatedProduct = await productModel.findByIdAndUpdate(
-      reqProduct,
-      { ...req.body, images: imagePaths, updatedBy: userID },
+      productId,
+      { 
+        ...req.body, 
+        images: imagePaths, 
+        updatedBy: userId,
+        updatedAt: Date.now()
+      },
       { new: true }
     );
-
-    res
-      .status(200)
-      .json({ message: "Product updated successfully.", updatedProduct });
+    
+    res.status(200).json({ 
+      message: "Product updated successfully.", 
+      product: updatedProduct 
+    });
   } catch (error) {
+    console.error("Error updating product:", error);
     res.status(500).json({ error: error.message });
   }
 };

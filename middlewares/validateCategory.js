@@ -16,7 +16,7 @@ export const validateCategoryId = async (req, res, next) => {
   const reqCategory = req.params.catId;
 
   if (!mongoose.Types.ObjectId.isValid(reqCategory)) {
-    return res.status(400).json({ message: "Invalid cart ID format!" });
+    return res.status(400).json({ message: "Invalid category ID format!" });
   }
 
   const foundedCategoryById = await categoryModel.findById(reqCategory);

@@ -7,7 +7,8 @@ import { sendEmail } from "../../../services/email.js";
 
 const register = async (req, res) => {
   // user must to send role [ user / seller ] => user for user accounts and sellers for seller one
-  const { email, firstName, lastName, phoneNumber, password, role } = req.body;
+  const { email, firstName, lastName, phoneNumber, password, role, address } =
+    req.body;
 
   const existingUser = await userModel.findOne({ email });
   const existingPhoneNumber = await userModel.findOne({ phoneNumber });
@@ -26,6 +27,7 @@ const register = async (req, res) => {
     lastName,
     phoneNumber,
     password: hashedPassword,
+    address,
     role,
   });
   await newUser.save();
