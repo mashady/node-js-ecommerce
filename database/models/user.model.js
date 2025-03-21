@@ -40,9 +40,14 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "email",
     },
-    address: {
-      type: String,
-    },
+    address: [
+      {
+        address: { type: String },
+        city: { type: String },
+        country: { type: String },
+        zip: { type: String },
+      },
+    ],
     googleId: {
       type: String,
     },
