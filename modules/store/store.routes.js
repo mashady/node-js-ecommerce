@@ -5,6 +5,7 @@ import {
   displayStore,
   removeStore,
   updateStore,
+  getOrdersForSellerProducts,
 } from "./store.controller.js";
 import { validateStore } from "../../middlewares/validateStore.js";
 import auth from "../../middlewares/auth.js";
@@ -13,6 +14,7 @@ const storeRoutes = express.Router();
 
 storeRoutes.get("/stores", auth, role.check("admin"), displayAllStores); // admin only
 storeRoutes.get("/store/:id", displayStore);
+storeRoutes.get("/storeorders", auth, getOrdersForSellerProducts);
 storeRoutes.post(
   "/store",
   auth,

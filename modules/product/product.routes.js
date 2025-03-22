@@ -8,6 +8,7 @@ import {
   productSearch,
   categorySearch,
   productPrice,
+  getProductByUserId,
 } from "./product.controller.js";
 
 import {
@@ -24,6 +25,8 @@ export const productRoutes = express.Router();
 // Abdelwahab => Admin CRUD operations
 productRoutes.get("/products", getAllProducts);
 productRoutes.get("/products/:Id", validateProductId, getProductById);
+productRoutes.get("/storeproducts", auth, getProductByUserId);
+
 productRoutes.post(
   "/addProduct",
   auth,
