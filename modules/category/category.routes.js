@@ -39,6 +39,7 @@ categoryRoutes.get(
 categoryRoutes.get(
   "/getCategoryByName",
   
+  
   getCategoryByName
 );
 categoryRoutes.put(

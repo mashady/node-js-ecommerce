@@ -7,12 +7,6 @@ export const orderSchema = Joi.object({
     }),
 
   shippingAddress: Joi.object({
-    fullName: Joi.string().trim().min(2).max(100).required().messages({
-      "string.empty": "Full name is required",
-      "string.min": "Full name must be at least 2 characters",
-      "string.max": "Full name must be at most 100 characters",
-    }),
-
     address: Joi.string().trim().min(5).max(255).messages({
       "string.empty": "Address is required",
       "string.min": "Address must be at least 5 characters",
@@ -25,7 +19,7 @@ export const orderSchema = Joi.object({
       "string.max": "City must be at most 100 characters",
     }),
 
-    postalCode: Joi.string().trim().min(3).max(12).required().messages({
+    zip: Joi.string().trim().min(3).max(12).required().messages({
       "string.empty": "Postal code is required",
       "string.alphanum": "Postal code must be alphanumeric",
       "string.min": "Postal code must be at least 3 characters",
