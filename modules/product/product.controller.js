@@ -7,11 +7,9 @@ const getAllProducts = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const products = await productModel
-      .find(
-        {
-          _id: { $ne: req?.user?._id },
-        }
-      )
+      .find({
+        _id: { $ne: req?.user?._id },
+      })
       .sort("-created")
       .limit(limit * 1)
       .skip(skip)
@@ -42,14 +40,53 @@ const getProductById = async (req, res) => {
     const reqProduct = req.params.Id;
 
     const existingProduct = await productModel.findById(reqProduct);
-    
-    res.status(200).json({ message: "Product fetched successfully.", existingProduct });
 
+    res
+      .status(200)
+      .json({ message: "Product fetched successfully.", existingProduct });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
 
-}
+const getProductByUserId = async (req, res) => {
+  // fetch products by user id
+  if (!req.user || !req.user._id) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: No user ID provided" });
+  }
+
+  const userID = new mongoose.Types.ObjectId(req.user._id);
+
+  const { page = 1, limit = 20 } = req.query; //don't forget to change the limit <==
+  const skip = (page - 1) * limit;
+
+  const products = await productModel
+    .find({
+      addedBy: userID,
+    })
+    .sort("-created")
+    .limit(limit * 1)
+    .skip(skip)
+    .exec();
+  if (products.length === 0)
+    return res
+      .status(200)
+      .json({ Message: "We have no products at this moment" });
+
+  const productsNumber = await productModel.countDocuments();
+  const totalPages = Math.ceil(productsNumber / limit);
+
+  res.status(200).json({
+    message: "Products fetched successfully",
+    totalProducts: productsNumber,
+    totalPages: totalPages,
+    page: Number(page),
+    skip: Number(skip),
+    data: products,
+  });
+};
 
 const addProduct = async (req, res) => {
   try {
@@ -83,37 +120,36 @@ const updateProduct = async (req, res) => {
   try {
     const productId = req.params.Id;
     const userId = req.user._id;
-    
-    
+
     const existingProduct = await productModel.findById(productId);
-    
+
     if (!existingProduct) {
       return res.status(404).json({ message: "Product not found." });
     }
-    
-    
-    let imagePaths = existingProduct.images || []; 
-    
+
+    let imagePaths = existingProduct.images || [];
+
     if (req.files && req.files.length > 0) {
-      const newImagePaths = req.files.map(file => `/uploads/${file.filename}`);
+      const newImagePaths = req.files.map(
+        (file) => `/uploads/${file.filename}`
+      );
       imagePaths = [...imagePaths, ...newImagePaths];
     }
-    
-    
+
     const updatedProduct = await productModel.findByIdAndUpdate(
       productId,
-      { 
-        ...req.body, 
-        images: imagePaths, 
+      {
+        ...req.body,
+        images: imagePaths,
         updatedBy: userId,
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       },
       { new: true }
     );
-    
-    res.status(200).json({ 
-      message: "Product updated successfully.", 
-      product: updatedProduct 
+
+    res.status(200).json({
+      message: "Product updated successfully.",
+      product: updatedProduct,
     });
   } catch (error) {
     console.error("Error updating product:", error);
@@ -212,4 +248,5 @@ export {
   productSearch,
   productPrice,
   categorySearch,
+  getProductByUserId,
 };
