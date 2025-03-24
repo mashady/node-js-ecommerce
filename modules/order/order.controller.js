@@ -35,6 +35,7 @@ export const createEpayOrder = async (req, res) => {
     }
     const totalOrderPrice = cart.subtotal * 100;
     const products=cart.products;
+    const unitAmount = Math.round(totalOrderPrice); 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -42,7 +43,7 @@ export const createEpayOrder = async (req, res) => {
           price_data: {
             currency: "usd",
             product_data: { name: "Your Order" },
-            unit_amount: totalOrderPrice,
+            unit_amount: unitAmount,
           },
           quantity: 1,
         },
@@ -77,14 +78,75 @@ export const updateOrderStatus = async (req, res) => {
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
     if (!session) {
-      return res.status(400).json({ message: "Invalid session" });
-    }
+     res.status(400).send(`
+        <html>
+            <head>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+            </head>
+            <body class="d-flex justify-content-center align-items-center vh-100 bg-light">
+                <div class="alert alert-danger text-center">
+                    <h3>Invalid Session</h3>
+                    <p>Session ID is missing or invalid.</p>
+                </div>
+            </body>
+        </html>
+    `);    }
     await orderModel.findOneAndUpdate(
       { checkoutSessionId: session.id },
       { status: "paid" }
     );
 
-    res.json({ message: "Payment successful!" });
+    res.send(`
+      <html>
+          <head>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+          </head>
+          <style>._failed{ border-bottom: solid 4px red !important; }
+._failed i{  color:red !important;  }
+
+._success {
+    box-shadow: 0 15px 25px #00000019;
+    padding: 45px;
+    width: 100%;
+    text-align: center;
+    margin: 40px auto;
+    border-bottom: solid 4px #28a745;
+}
+
+._success i {
+    font-size: 55px;
+    color: #28a745;
+}
+
+._success h2 {
+    margin-bottom: 12px;
+    font-size: 40px;
+    font-weight: 500;
+    line-height: 1.2;
+    margin-top: 10px;
+}
+
+._success p {
+    margin-bottom: 0px;
+    font-size: 18px;
+    color: #495057;
+    font-weight: 500;
+}</style>
+          <body class="d-flex justify-content-center align-items-center vh-100 bg-light">
+              <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="message-box _success">
+                     <i class="fa fa-check-circle" aria-hidden="true"></i>
+                    <h2> Your payment was successful </h2>  
+                   <p> Thank you for your payment. we will <br>
+                    be in contact with more details shortly </p>      
+            </div> 
+        </div> 
+    </div> 
+          </body>
+      </html>
+  `);
   } catch (error) {
     console.error("Payment success error:", error);
     res.status(500).json({ message: "Server error" });
