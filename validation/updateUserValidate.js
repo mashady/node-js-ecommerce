@@ -46,6 +46,10 @@ const updateProfileSchema = Joi.object({
         }),
     })
   ),
+  role: Joi.string().valid("user", "seller").messages({
+    "string.valid": "Invalid role",
+    "string.empty": "Role is empty",
+  }),
   currentPassword: Joi.string().min(6).optional().messages({
     "string.min": "Current password must be at least 6 characters long",
   }),
@@ -54,4 +58,5 @@ const updateProfileSchema = Joi.object({
     "string.min": "New password must be at least 6 characters long",
   }),
 }).with("currentPassword", "newPassword");
+
 export default updateProfileSchema;
