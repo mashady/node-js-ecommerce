@@ -83,7 +83,8 @@ const googleCallback = (req, res, next) => {
         if (err) {
           return next(err);
         }
-        res.json({ message: "User logged in successfully", token: token });
+        res.redirect(`http://localhost:4200/auth-success?token=${token}`);
+
       });
     }
   )(req, res, next);
