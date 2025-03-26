@@ -14,7 +14,7 @@ const promocodeSchema = mongoose.Schema(
       type: Number,
       required: true,
       min: 0.0,
-      max: 1000,
+      max: 1,
     },
     addedBy: {
       type: mongoose.Schema.Types.ObjectId,
