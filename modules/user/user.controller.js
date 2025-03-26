@@ -221,10 +221,13 @@ const updateUser = async (req, res) => {
     if (!updatedUser) {
       return res.status(404).json({ message: "Failed to update user" });
     }
-
+    const newUpUser = await userModel.findById(userID).select("-password");
+    const newToken = newUpUser.generateAuthToken();
+   //////////// let newToken = updateUser.generateAuthToken()
     return res.status(200).json({
       message: "User updated successfully",
       user: updatedUser,
+      token:newToken
     });
   } catch (error) {
     return res.status(500).json({
