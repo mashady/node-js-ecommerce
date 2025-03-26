@@ -59,7 +59,7 @@ app.use(orderRouter);
 app.use(storeRoutes);
 app.use(clg);
 app.use(notFound);
-
+//app.use(express.static(path.join(__dirname, 'public')));
 db();
 
 const local_port = config.get("sys_info.local_port");
