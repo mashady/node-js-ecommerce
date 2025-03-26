@@ -238,7 +238,83 @@ const categorySearch = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+export const getFilteredProducts = async (req, res) => {
+  try {
+    let {
+      query = "", 
+      category = [],
+      aboveprice = 0, 
+      belowprice = 0, 
+      sortBy = "latest", 
+      page = 1, 
+      limit = 20, 
+    } = req.query;
 
+    console.log("Query parameters:", req.query);
+
+    let filter = {};
+
+    if (query) {
+      filter.name = { $regex: query, $options: "i" }; 
+    }
+
+    if (category.length > 0) {
+      filter.category = { $in: category }; 
+    }
+
+    if (aboveprice || belowprice) {
+      filter.price = {};
+      if (aboveprice) filter.price.$gte = Number(aboveprice);
+      if (belowprice) filter.price.$lte = Number(belowprice);
+    }
+
+    console.log("Filter object:", filter);
+
+    let sort = {};
+    if (sortBy === "latest") {
+      sort.createdAt = -1; 
+    } else if (sortBy === "price-asc") {
+      sort.price = 1; 
+    } else if (sortBy === "price-desc") {
+      sort.price = -1; 
+    }
+
+    console.log("Sort object:", sort);
+
+    const skip = (page - 1) * limit; 
+
+    const products = await productModel
+      .find(filter)
+      .skip(skip)
+      .limit(Number(limit))
+      .sort(sort)
+      .exec();
+
+    const totalProducts = await productModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit); 
+
+    if (products.length === 0) {
+      return res.status(404).json({
+        message: "No products found.",
+        totalProducts,
+        totalPages,
+        page,
+        data: [],
+      });
+    }
+
+    res.json({
+      message: "Products fetched successfully",
+      totalProducts,
+      totalPages,
+      page,
+      data: products,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Error fetching products", error: error.message });
+  }
+};
 export {
   getAllProducts,
   getProductById,

@@ -9,6 +9,7 @@ import {
   categorySearch,
   productPrice,
   getProductByUserId,
+  getFilteredProducts
 } from "./product.controller.js";
 
 import {
@@ -62,5 +63,6 @@ productRoutes.delete(
 productRoutes.get("/product", productSearch);
 productRoutes.get("/products/price", productPrice);
 productRoutes.get("/products/category", categorySearch);
+productRoutes.get("/allproducts", getFilteredProducts);
 
 export default productRoutes;
