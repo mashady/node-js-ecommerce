@@ -44,7 +44,6 @@ promocodeRoutes.put(
   role.check("admin", "seller"),
   validatePromocodeId,
   validatePromocode,
-  validatePromocodeName,
   updatePromocode
 );
 promocodeRoutes.delete(
