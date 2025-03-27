@@ -10,6 +10,7 @@ import {
   updateBanner,
   deleteBanner,
   getBannerByTitle,
+  getBannerById
 } from "./banner.controller.js";
 import upload from "../../middlewares/multer.upload.js";
 import auth from "../../middlewares/auth.js";
@@ -27,6 +28,7 @@ bannerRoutes.post(
   addBanner
 );
 bannerRoutes.get("/getBanners", auth, role.check("admin"), getBanners);
+bannerRoutes.get("/getBanner", auth, role.check("admin"),validateBannerById,getBannerById);
 bannerRoutes.get("/getBanner", getBannerByTitle);
 bannerRoutes.put(
   "/updateBanner/:id",
