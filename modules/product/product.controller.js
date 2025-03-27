@@ -39,18 +39,43 @@ const getProductById = async (req, res) => {
   try {
     const reqProduct = req.params.Id;
 
-    const existingProduct = await productModel.findById(reqProduct);
+    // Aggregation to get product and its related reviews
+    const productWithReviews = await productModel.aggregate([
+      { 
+        $match: { _id: new mongoose.Types.ObjectId(reqProduct) } 
+      },
+      {
+        $lookup: {
+          from: "reviews",  
+          localField: "_id", 
+          foreignField: "productID",
+          as: "reviews"  
+        }
+      },
+      {
+        $project: {
+          password: 0,  
+          __v: 0,      
+        }
+      }
+    ]);
 
-    res
-      .status(200)
-      .json({ message: "Product fetched successfully.", existingProduct });
+    if (productWithReviews.length === 0) {
+      return res.status(404).json({ message: "Product not found." });
+    }
+
+    res.status(200).json({
+      message: "Product fetched successfully.",
+      product: productWithReviews[0], 
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching product:", error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
 
+
 const getProductByUserId = async (req, res) => {
-  // fetch products by user id
   if (!req.user || !req.user._id) {
     return res
       .status(401)
