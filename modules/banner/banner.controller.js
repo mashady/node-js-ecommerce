@@ -36,6 +36,15 @@ export const getBanners = async (req, res) => {
   }
 };
 
+export const getBannerById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const existingBanner = await bannerModel.findById(id);
+    res.status(200).json({ message: "Banner fetched successfully", existingBanner });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
 export const getBannerByTitle = async (req, res) => {
   try {
     const title = req.query.title;
