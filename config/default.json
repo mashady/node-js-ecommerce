@@ -3,6 +3,7 @@
     "local_port": 8088,
     "db_uri": "mongodb+srv://abusamir:Mido123456789@cluster22.kksvxg4.mongodb.net/online-store?retryWrites=true&w=majority&appName=Cluster22"
   },
+  "GEMINI_API_KEY":"AIzaSyD2-qfE6IIXVN4Y9SW3jfMBwGnPrT3FGVs",
   "jwtPrivateKey": "verySecret",
   "SESSION_SECRET": "mashady",
   "STRIPE_KEY": "sk_test_51Qz1RTRt9POYKUo0akui0PSDlx10ydgk8y6Avz48nD3o7kIttMxUtLjXpmF4vd6hDSUjvtEYmcYhJkWnX6aOnOCM00wqUNcklt",
