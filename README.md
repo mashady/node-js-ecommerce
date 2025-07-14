@@ -5,8 +5,6 @@ youtube demo link - https://youtu.be/T2RXO8g4Iew
 frontend github repo - https://github.com/mashady/angular-ecommerce
 
 
-![appHeader](https://github.com/user-attachments/assets/c2386d01-fdbe-4ee8-8e11-13eb8384323d)
-
 
 ![erd](https://github.com/mashady/node-js-ecommerce/blob/master/erd.png)
 
